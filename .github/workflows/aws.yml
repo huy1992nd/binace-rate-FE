@@ -1,0 +1,40 @@
+name: Deploy to AWS ECS
+
+on:
+  push:
+    branches:
+      - main  # Run this workflow on every push to the main branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Log in to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build and tag Docker image
+        env:
+          REPO_URI: 123456789012.dkr.ecr.region.amazonaws.com/my-react-app
+        run: |
+          docker build -t $REPO_URI:latest .
+          docker tag $REPO_URI:latest $REPO_URI:${{ github.sha }}
+
+      - name: Push to Amazon ECR
+        env:
+          REPO_URI: 123456789012.dkr.ecr.region.amazonaws.com/my-react-app
+        run: |
+          docker push $REPO_URI:latest
+          docker push $REPO_URI:${{ github.sha }}
+
+      - name: Deploy to Amazon ECS
+        env:
+          AWS_REGION: us-west-2
+          CLUSTER: my-ecs-cluster
+          SERVICE: my-ecs-service
+          IMAGE_URI: 123456789012.dkr.ecr.region.amazonaws.com/my-react-app:${{ github.sha }}
+        run: |
+          aws 
