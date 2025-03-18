@@ -32,7 +32,7 @@ const App = () => {
           <CoinTable />
         ) : (
           <div className="intro">
-            <h2>Welcome to Binance Coin Tracker! 🚀</h2>
+            <h2>Welcome to Binance Coin Tracker v2! 🚀</h2>
             <p>
               This platform provides real-time Binance cryptocurrency prices. Stay updated
               with the latest market trends and track your favorite coins effortlessly.
