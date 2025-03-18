@@ -1,6 +1,6 @@
 import { io } from "socket.io-client";
 
-const SOCKET_URL = "http://localhost:3001"; // Ensure this matches your backend port
+const SOCKET_URL = "http://3.107.84.195:3000/"; // Ensure this matches your backend port
 
 const socket = io(SOCKET_URL, {
   transports: ["websocket"], // Force WebSocket only
