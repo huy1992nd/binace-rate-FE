@@ -1,0 +1,152 @@
+/* App Container */
+.app-container {
+  display: flex;
+  height: 100vh;
+  background: url("../public/binance.jpg") no-repeat center center fixed;
+  background-size: cover;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 250px;
+  background: rgba(0, 0, 0, 0.85);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 4px 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.sidebar h2 {
+  color: #f0b90b;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.menu {
+  width: 100%;
+}
+
+.menu button {
+  width: 100%;
+  background: none;
+  border: 2px solid #f0b90b;
+  color: white;
+  padding: 12px;
+  margin: 5px 0;
+  cursor: pointer;
+  font-size: 16px;
+  transition: 0.3s;
+  border-radius: 5px;
+}
+
+.menu button:hover {
+  background: #f0b90b;
+  color: black;
+}
+
+.menu button.active {
+  background: #f0b90b;
+  color: black;
+  font-weight: bold;
+}
+
+/* Main Content */
+.main-content {
+  flex-grow: 1;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  overflow-y: auto;
+}
+
+/* Table Styling */
+.container {
+  text-align: center;
+}
+
+
+
+table {
+  width: 80%;
+  margin: 20px auto;
+  border-collapse: collapse;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+thead {
+  background: linear-gradient(to right, #f0b90b, #f8d146);
+  color: black;
+}
+
+th, td {
+  padding: 12px;
+  text-align: center;
+  font-size: 16px;
+}
+
+tbody tr {
+  background-color: rgba(255, 255, 255, 0.1);
+  transition: background 0.3s ease-in-out;
+}
+
+tbody tr:nth-child(even) {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.4);
+  transform: scale(1.01);
+}
+
+.price-up {
+  color: #2ECC71;
+  font-weight: bold;
+}
+
+.price-down {
+  color: #E74C3C;
+  font-weight: bold;
+}
+
+/* Introduction Page */
+.intro {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 20px;
+  border-radius: 10px;
+  width: 60%;
+  margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+  .app-container {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    height: auto;
+    flex-direction: row;
+    justify-content: center;
+  }
+
+  .menu {
+    display: flex;
+    flex-direction: row;
+  }
+
+  .menu button {
+    flex: 1;
+    margin: 5px;
+  }
+
+  .main-content {
+    padding: 10px;
+  }
+
+  .intro {
+    width: 90%;
+  }
+}
