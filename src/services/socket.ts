@@ -5,8 +5,8 @@ interface RateData {
   price: string; // Binance API may return this as a string
 }
 
-const SOCKET_URL = "http://3.107.84.195:3000/"; // Ensure backend is running
-// const SOCKET_URL = "http://localhost:3001/"; // Ensure backend is running
+// const SOCKET_URL = "http://3.107.84.195:3000/"; // Ensure backend is running
+const SOCKET_URL = "http://localhost:3001/"; // Ensure backend is running
 
 const socket: Socket = io(SOCKET_URL, {
   transports: ["websocket"], // Ensure WebSocket is used

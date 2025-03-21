@@ -1,5 +1,6 @@
 import React from "react";
 import "../styles.css";
+import GoogleLoginButton from "../components/GoogleLoginButton";
 
 interface SidebarProps {
   setActiveTab: (tab: string) => void;
@@ -23,6 +24,7 @@ const Sidebar: React.FC<SidebarProps> = ({ setActiveTab, activeTab }) => {
         >
           ℹ️ Introduction
         </button>
+        <GoogleLoginButton />
       </div>
     </div>
   );
