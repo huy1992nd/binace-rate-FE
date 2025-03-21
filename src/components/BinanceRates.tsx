@@ -19,11 +19,6 @@ const BinanceRates: React.FC = () => {
           price: parseFloat(data.price),
           prevPrice: existingRate ? existingRate.price : parseFloat(data.price), // Fix: Initialize with current price
         };
-        const r = existingRate? existingRate.price : 0;
-        if(newRate.price > r) {
-          console.log('newRate', newRate);
-        }
-
         return [
           ...prevRates.filter((r) => r.symbol !== data.symbol),
           newRate,
@@ -44,7 +39,6 @@ const BinanceRates: React.FC = () => {
       isUp: rate.price >= rate.prevPrice, // Fix: Proper comparison
     }));
     
-    console.log('topcoin', topCoins);
 
   return (
     <div className="container">
