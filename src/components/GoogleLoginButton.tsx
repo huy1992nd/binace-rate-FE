@@ -3,23 +3,29 @@ import { GoogleLogin } from '@react-oauth/google';
 import axios from 'axios';
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
-const GoogleLoginButton: React.FC = () => {
+const GoogleLoginButton: React.FC<{ setUser: (user: any) => void }> = ({ setUser }) => {
     const handleSuccess = async (credentialResponse: any) => {
-        console.log('Google Login Success:', credentialResponse);
+      console.log("Google Login Success:", credentialResponse);
 
-        if (credentialResponse.credential) {
-            try {
-                // ✅ Send the token to the backend
-                console.log('backend url', BACKEND_URL);
-                const response = await axios.post(`${BACKEND_URL}/auth/google`, {
-                    token: credentialResponse.credential,
-                });
+      if (credentialResponse.credential) {
+        try {
+          // ✅ Send the token to the backend
+          console.log("backend url", BACKEND_URL);
+          const response = await axios.post(`${BACKEND_URL}/auth/google`, {
+            token: credentialResponse.credential,
+          });
 
-                console.log("✅ Backend response:", response.data);
-            } catch (error) {
-                console.error("❌ Error sending token to backend:", error);
-            }
+          const data = await response.data;
+
+          if (data.accessToken) {
+            localStorage.setItem("token", data.accessToken);
+            localStorage.setItem("user", JSON.stringify(data.user));
+            setUser(data.user);
+          }
+        } catch (error) {
+            console.error("Login failed", error);
         }
+      }
     };
 
 

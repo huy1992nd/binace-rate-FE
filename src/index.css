@@ -1,13 +1,118 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+/* Sidebar */
+.sidebar {
+  width: 260px;
+  background: rgba(0, 0, 0, 0.9);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 4px 0 10px rgba(0, 0, 0, 0.5);
+  border-right: 2px solid #f0b90b;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+.sidebar h2 {
+  color: #f0b90b;
+  margin-bottom: 20px;
+  text-align: center;
+  font-size: 22px;
+}
+
+/* Sidebar Menu */
+.menu {
+  width: 100%;
+}
+
+.menu button {
+  width: 100%;
+  background: none;
+  border: 2px solid #f0b90b;
+  color: white;
+  padding: 12px;
+  margin: 5px 0;
+  cursor: pointer;
+  font-size: 16px;
+  transition: 0.3s;
+  border-radius: 5px;
+}
+
+.menu button:hover {
+  background: #f0b90b;
+  color: black;
+}
+
+.menu button.active {
+  background: #f0b90b;
+  color: black;
+  font-weight: bold;
+}
+
+/* User Info */
+.user-info {
+  text-align: center;
+  margin-top: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 15px;
+  border-radius: 10px;
+}
+
+.user-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  margin-bottom: 10px;
+  border: 2px solid #f0b90b;
+}
+
+/* Logout Button */
+.logout-btn {
+  width: 100%;
+  padding: 10px;
+  background: #e74c3c;
+  border: none;
+  color: white;
+  font-size: 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.logout-btn:hover {
+  background: #c0392b;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 100%;
+    height: auto;
+    flex-direction: row;
+    justify-content: center;
+    border-right: none;
+    border-bottom: 2px solid #f0b90b;
+  }
+
+  .menu {
+    display: flex;
+    flex-direction: row;
+  }
+
+  .menu button {
+    flex: 1;
+    margin: 5px;
+  }
+
+  .user-info {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+  }
+
+  .user-avatar {
+    width: 40px;
+    height: 40px;
+  }
+
+  .logout-btn {
+    width: 80%;
+  }
 }
