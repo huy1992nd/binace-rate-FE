@@ -24,7 +24,7 @@ socket.on("disconnect", (reason: Socket.DisconnectReason) =>
 socket.on("reconnect_attempt", () => console.log("🔄 Reconnecting..."));
 
 export const subscribeToRates = (callback: (data: RateData) => void) => {
-  socket.emit("subscribeToRate"); // Subscribe to Binance rate updates
+  socket.emit("subscribeToRate", {"topPairs": ['BTCUSD']}); // Subscribe to Binance rate updates
 
   const handleRateUpdate = (data: RateData) => {
     callback(data);
