@@ -21,6 +21,15 @@ const GoogleLoginButton: React.FC<{ setUser: (user: any) => void }> = ({ setUser
             localStorage.setItem("token", data.accessToken);
             localStorage.setItem("user", JSON.stringify(data.user));
             setUser(data.user);
+            // ✅ Fetch saved pairs from DB after login
+            await fetchSavedPairs(data.accessToken);
+              // ✅ Fetch saved pairs from DB after login
+            const savedPairs = await fetchSavedPairs(data.accessToken);
+            console.log("In List Pairs after login:", savedPairs);
+
+            // ✅ Store in localStorage and trigger UI update
+            localStorage.setItem("selectedPairs", JSON.stringify(savedPairs));
+            window.dispatchEvent(new Event("storage")); // 🔹 Notify Sidebar
           }
         } catch (error) {
             console.error("Login failed", error);
@@ -34,6 +43,18 @@ const GoogleLoginButton: React.FC<{ setUser: (user: any) => void }> = ({ setUser
     };
 
     return <GoogleLogin onSuccess={handleSuccess} onError={handleError} />;
+};
+
+const fetchSavedPairs = async (token: string) => {
+  try {
+    const response = await axios.get(`${BACKEND_URL}/crypto/get-pairs`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    return response.data || [];
+  } catch (error) {
+    console.error("Failed to fetch get pairs", error);
+  }
 };
 
 export default GoogleLoginButton;
