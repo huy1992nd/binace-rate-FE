@@ -22,7 +22,7 @@ const BinanceRates: React.FC = () => {
     // Function to update selected pairs from localStorage
     const updateSelectedPairs = () => {
       const storedPairs = localStorage.getItem("selectedPairs");
-      console.log('updateSelectedPairs', storedPairs);
+      console.log('in updateSelectedPairs', storedPairs);
       if (storedPairs) {
         setSelectedPairs(JSON.parse(storedPairs));
       } else {

@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import { useRef } from "react";
+
 import axios from "axios";
 import "../styles.css";
 import GoogleLoginButton from "../components/GoogleLoginButton";
@@ -18,17 +20,29 @@ const Sidebar: React.FC<SidebarProps> = ({ setActiveTab, activeTab }) => {
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
+    const token = localStorage.getItem("token");
 
-    const storedPairs = localStorage.getItem("selectedPairs");
-    if (storedPairs) {
-      setSelectedPairs(JSON.parse(storedPairs));
-    }
-
+    if (storedUser) setUser(JSON.parse(storedUser));
+    if (token) fetchSavedPairs(token);
+    
     fetchTopPairs();
+    
+    // ✅ Sync selected pairs when localStorage updates
+    const handleStorageChange = () => {
+      const updatedPairs = localStorage.getItem("selectedPairs");
+      setSelectedPairs(updatedPairs ? JSON.parse(updatedPairs) : []);
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
+
+  useEffect(() => {
+    // ✅ Save pairs to backend whenever `selectedPairs` changes
+    if (user && selectedPairs.length > 0) {
+      savePairsToBackend(selectedPairs);
+    }
+  }, [selectedPairs]);
 
   const fetchTopPairs = async () => {
     try {
@@ -39,32 +53,74 @@ const Sidebar: React.FC<SidebarProps> = ({ setActiveTab, activeTab }) => {
     }
   };
 
+  const fetchSavedPairs = async (token: string) => {
+    try {
+      const response = await axios.get(`${BACKEND_URL}/crypto/get-pairs`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const savedPairs = response.data;
+      setSelectedPairs(savedPairs);
+      console.log('in fetchSavedPairs', savedPairs);
+
+      localStorage.setItem("selectedPairs", JSON.stringify(savedPairs));
+    } catch (error) {
+      console.error("Failed to fetch saved pairs", error);
+    }
+  };
+
+  const savePairsToBackend = async (updatedPairs: string[]) => {
+    if (!user) return;
+    
+    try {
+      const token = localStorage.getItem("token");
+      await axios.post(
+        `${BACKEND_URL}/crypto/save-pairs`,
+        { pairs: updatedPairs },
+        { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } }
+      );
+    } catch (error) {
+      console.error("Failed to save selected pairs", error);
+    }
+  };
+
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     localStorage.removeItem("selectedPairs");
     setUser(null);
     setSelectedPairs([]);
-    // 🔹 Trigger a 'storage' event manually
     window.dispatchEvent(new Event("storage"));
   };
 
-  const handlePairSelection = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  const handlePairSelection = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (isUpdating) return; // Prevent multiple rapid updates
+  
+    setIsUpdating(true);
     const value = event.target.value;
+    const isChecked = event.target.checked;
+  
     setSelectedPairs((prevSelectedPairs) => {
-      const updatedPairs = prevSelectedPairs.includes(value)
-        ? prevSelectedPairs.filter((pair) => pair !== value)
-        : [...prevSelectedPairs, value];
+      const updatedPairs = isChecked
+        ? [...prevSelectedPairs, value]
+        : prevSelectedPairs.filter((pair) => pair !== value);
+  
+      console.log("handlePairSelection:", updatedPairs);
       localStorage.setItem("selectedPairs", JSON.stringify(updatedPairs));
-      // 🔹 Trigger a 'storage' event manually
       window.dispatchEvent(new Event("storage"));
+  
       return updatedPairs;
     });
+  
+    setTimeout(() => setIsUpdating(false), 200); // Small delay to prevent rapid state updates
   };
 
   const handleResetPairs = () => {
     setSelectedPairs([]);
     localStorage.removeItem("selectedPairs");
+    window.dispatchEvent(new Event("storage"));
   };
 
   return (
@@ -87,31 +143,27 @@ const Sidebar: React.FC<SidebarProps> = ({ setActiveTab, activeTab }) => {
         {user ? (
           <div className="user-info">
             <img src={user.picture} alt="User" className="user-avatar" />
-            <p>Welcome, {user.name}!</p>
+            <p className="wellcome-label">Welcome, {user.name}!</p>
 
-            {/* 🔹 Show/hide pair selection */}
             <button className="settings-btn" onClick={() => setShowDropdown(!showDropdown)}>
               🎛️ Select Pairs
             </button>
 
-            {/* 🔹 Hidden Pair Selection - Only visible when showDropdown is true */}
             {showDropdown && (
               <div className="pair-selection">
-                <label className="pair-label">Select Your Pairs:</label>
-                <div className="pair-checkbox-list">
+                <div className="pair-checkbox-list scrollable-list">
                   {topPairs.map((pair) => (
                     <label key={pair} className="pair-checkbox">
-                      <input
-                        type="checkbox"
-                        value={pair}
-                        checked={selectedPairs.includes(pair)}
-                        onChange={handlePairSelection}
-                      />
+                       <input
+                          type="checkbox"
+                          value={pair}
+                          checked={selectedPairs.includes(pair)}
+                          onChange={handlePairSelection}
+                        />
                       {pair.toUpperCase()}
                     </label>
                   ))}
                 </div>
-                {/* 🔹 Reset Button */}
                 <button className="reset-btn" onClick={handleResetPairs}>🔄 Reset Selection</button>
               </div>
             )}
