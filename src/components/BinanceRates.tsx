@@ -9,8 +9,32 @@ interface Rate {
 
 const BinanceRates: React.FC = () => {
   const [rates, setRates] = useState<Rate[]>([]);
+  const [selectedPairs, setSelectedPairs] = useState<string[]>([]);
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
+    // Retrieve user data from localStorage
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+
+    // Function to update selected pairs from localStorage
+    const updateSelectedPairs = () => {
+      const storedPairs = localStorage.getItem("selectedPairs");
+      console.log('in updateSelectedPairs', storedPairs);
+      if (storedPairs) {
+        setSelectedPairs(JSON.parse(storedPairs));
+      } else {
+        setSelectedPairs([]); // Reset if no pairs selected
+      }
+    };
+
+    // Initial fetch of selected pairs
+    updateSelectedPairs();
+
+    // Listen for changes in localStorage (real-time updates)
+    window.addEventListener("storage", updateSelectedPairs);
     const unsubscribe = subscribeToRates((data) => {
       setRates((prevRates) => {
         const existingRate = prevRates.find((r) => r.symbol === data.symbol);
@@ -19,11 +43,6 @@ const BinanceRates: React.FC = () => {
           price: parseFloat(data.price),
           prevPrice: existingRate ? existingRate.price : parseFloat(data.price), // Fix: Initialize with current price
         };
-        const r = existingRate? existingRate.price : 0;
-        if(newRate.price > r) {
-          console.log('newRate', newRate);
-        }
-
         return [
           ...prevRates.filter((r) => r.symbol !== data.symbol),
           newRate,
@@ -33,18 +52,20 @@ const BinanceRates: React.FC = () => {
 
     return () => {
       unsubscribe();
+      window.removeEventListener("storagee", updateSelectedPairs);
     };
   }, []);
-
-  const topCoins = rates
+  const filteredRates =
+  user && selectedPairs.length > 0
+    ? rates.filter((rate) => selectedPairs.includes(rate.symbol.toLowerCase()))
+    : rates;
+  const topCoins = filteredRates
     .sort((a, b) => a.symbol.localeCompare(b.symbol)) // Sort alphabetically
-    .slice(0, 10)
     .map((rate) => ({
       ...rate,
       isUp: rate.price >= rate.prevPrice, // Fix: Proper comparison
     }));
     
-    console.log('topcoin', topCoins);
 
   return (
     <div className="container">

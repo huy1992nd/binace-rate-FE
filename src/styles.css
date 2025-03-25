@@ -44,9 +44,29 @@
   background: #f0b90b;
   color: black;
 }
+.user-info button {
+  border: 2px solid;
+    background: #d4c69c;
+    color: black;
+    padding: 3px;
+    margin: 3px;
+}
+.user-info .wellcome-label {
+  color: aliceblue;
+}
 
 .menu button.active {
   background: #f0b90b;
+  color: black;
+  font-weight: bold;
+}
+.user-info button:hover {
+  background: #ada898 !important;
+  color: black;
+}
+
+.user-info button.active {
+  background: #ada898 !important;
   color: black;
   font-weight: bold;
 }
@@ -81,7 +101,8 @@ thead {
   color: black;
 }
 
-th, td {
+th,
+td {
   padding: 12px;
   text-align: center;
   font-size: 16px;
@@ -118,6 +139,96 @@ tbody tr:hover {
   border-radius: 10px;
   width: 60%;
   margin: 0 auto;
+}
+
+/* Pair Selection Dropdown */
+.pair-selection {
+  margin-top: 0px;
+  width: 100%;
+  padding: 0px;
+  border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Scrollable List with Max Height */
+.scrollable-list {
+  display: flex;
+  flex-wrap: nowrap; /* Keep checkboxes in a single line */
+  overflow-x: auto; /* Enable horizontal scrolling */
+  overflow-y: auto; /* Enable vertical scrolling if needed */
+  max-height: 60px; /* Restrict height to 60px */
+  max-width: 100%;
+  padding: 5px;
+  border: 2px solid #f0b90b;
+  background: white;
+  border-radius: 5px;
+}
+
+/* Định dạng danh sách cặp tiền trong dropdown */
+.pair-checkbox-list {
+  display: flex;
+  flex-direction: column; /* Sắp xếp theo chiều dọc */
+  max-height: 120px; /* Giới hạn chiều cao */
+  overflow-y: auto; /* Cho phép cuộn xuống khi danh sách dài */
+  width: 100%;
+  padding: 5px;
+  border: 2px solid #f0b90b;
+  background: white;
+  border-radius: 5px;
+}
+
+/* Định dạng từng cặp tiền trong danh sách */
+.pair-checkbox {
+  display: flex;
+  align-items: center;
+  padding: 5px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+/* Khoảng cách giữa checkbox và tên cặp tiền */
+.pair-checkbox input[type="checkbox"] {
+  margin-right: 8px;
+  transform: scale(1.2);
+}
+
+
+
+/* Button Styling */
+.settings-btn {
+  width: 100%;
+  padding: 10px;
+  background: #f0b90b;
+  border: none;
+  color: black;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.3s;
+  border-radius: 5px;
+}
+
+.settings-btn:hover {
+  background: #d4a80a;
+}
+
+/* Reset Button */
+.reset-btn {
+  width: 100%;
+  margin-top: 10px;
+  padding: 10px;
+  background: #d9534f;
+  border: 2px solid #d9534f;
+  color: white;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.3s;
+  border-radius: 5px;
+}
+
+.reset-btn:hover {
+  background: #c9302c;
 }
 
 @media (max-width: 768px) {

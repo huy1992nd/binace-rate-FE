@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { GoogleOAuthProvider } from "@react-oauth/google"; // ✅ Import GoogleOAuthProvider
 import Sidebar from "./components/Sidebar";
 import Home from "./pages/Home";
 import Info from "./pages/Info";
@@ -8,10 +9,12 @@ const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState("prices");
 
   return (
-    <div className="app-container">
-      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
-      <div className="main-content">{activeTab === "prices" ? <Home /> : <Info />}</div>
-    </div>
+    <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID as string}>
+      <div className="app-container">
+        <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+        <div className="main-content">{activeTab === "prices" ? <Home /> : <Info />}</div>
+      </div>
+    </GoogleOAuthProvider>
   );
 };
 
