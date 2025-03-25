@@ -1,4 +1,6 @@
 import { io, Socket } from "socket.io-client";
+const SOCKET_URL = process.env.REACT_APP_BACKEND_URL;
+
 
 interface RateData {
   symbol: string;
@@ -6,7 +8,7 @@ interface RateData {
 }
 
 // const SOCKET_URL = "http://3.107.84.195:3000/"; // Ensure backend is running
-const SOCKET_URL = "http://localhost:3001/"; // Ensure backend is running
+// const SOCKET_URL = "http://localhost:3001/"; // Ensure backend is running
 
 const socket: Socket = io(SOCKET_URL, {
   transports: ["websocket"], // Ensure WebSocket is used

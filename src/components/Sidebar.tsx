@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { useRef } from "react";
 
 import axios from "axios";
 import "../styles.css";
@@ -143,7 +142,7 @@ const Sidebar: React.FC<SidebarProps> = ({ setActiveTab, activeTab }) => {
         {user ? (
           <div className="user-info">
             <img src={user.picture} alt="User" className="user-avatar" />
-            <p>Welcome, {user.name}!</p>
+            <p className="wellcome-label">Welcome, {user.name}!</p>
 
             <button className="settings-btn" onClick={() => setShowDropdown(!showDropdown)}>
               🎛️ Select Pairs
@@ -151,8 +150,7 @@ const Sidebar: React.FC<SidebarProps> = ({ setActiveTab, activeTab }) => {
 
             {showDropdown && (
               <div className="pair-selection">
-                <label className="pair-label">Select Your Pairs:</label>
-                <div className="pair-checkbox-list">
+                <div className="pair-checkbox-list scrollable-list">
                   {topPairs.map((pair) => (
                     <label key={pair} className="pair-checkbox">
                        <input

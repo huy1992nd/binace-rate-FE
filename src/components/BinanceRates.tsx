@@ -52,7 +52,7 @@ const BinanceRates: React.FC = () => {
 
     return () => {
       unsubscribe();
-      window.removeEventListener("storage", updateSelectedPairs);
+      window.removeEventListener("storagee", updateSelectedPairs);
     };
   }, []);
   const filteredRates =
