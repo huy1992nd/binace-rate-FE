@@ -1,6 +1,5 @@
 import { io, Socket } from "socket.io-client";
-const SOCKET_URL = process.env.REACT_APP_BACKEND_URL;
-
+const SOCKET_URL = 'http://3.107.84.195:3000/';
 
 interface RateData {
   symbol: string;
