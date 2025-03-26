@@ -1,7 +1,7 @@
 import React from 'react';
 import { GoogleLogin } from '@react-oauth/google';
 import axios from 'axios';
-const BACKEND_URL = 'https://api.huynq.online';
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
 const GoogleLoginButton: React.FC<{ setUser: (user: any) => void }> = ({ setUser }) => {
     const handleSuccess = async (credentialResponse: any) => {

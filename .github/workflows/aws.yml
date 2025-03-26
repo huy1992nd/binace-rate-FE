@@ -31,8 +31,10 @@ jobs:
       - name: Build and tag Docker image
         env:
           REPO_URI: public.ecr.aws/j0h9z3j3/react/dream-app
+          REACT_APP_BACKEND_URL: ${{ vars.REACT_APP_BACKEND_URL }}
+          REACT_APP_GOOGLE_CLIENT_ID: ${{ vars.REACT_APP_GOOGLE_CLIENT_ID }}
         run: |
-          docker build -t $REPO_URI:latest .
+          docker build --build-arg REACT_APP_BACKEND_URL=$REACT_APP_BACKEND_URL  --build-arg REACT_APP_GOOGLE_CLIENT_ID=$REACT_APP_GOOGLE_CLIENT_ID -t $REPO_URI:latest .
           docker tag $REPO_URI:latest $REPO_URI:${{ github.sha }}
 
       - name: Push to Amazon ECR

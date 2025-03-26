@@ -1,5 +1,5 @@
 import { io, Socket } from "socket.io-client";
-const SOCKET_URL = 'https://api.huynq.online/';
+const SOCKET_URL = process.env.REACT_APP_BACKEND_URL;
 
 interface RateData {
   symbol: string;

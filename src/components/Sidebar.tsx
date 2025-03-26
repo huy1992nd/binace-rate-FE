@@ -4,7 +4,7 @@ import axios from "axios";
 import "../styles.css";
 import GoogleLoginButton from "../components/GoogleLoginButton";
 
-const BACKEND_URL = 'https://api.huynq.online';
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
 interface SidebarProps {
   setActiveTab: (tab: string) => void;
