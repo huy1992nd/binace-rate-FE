@@ -1,5 +1,5 @@
 import { io, Socket } from "socket.io-client";
-const SOCKET_URL = 'http://3.107.84.195:3000/';
+const SOCKET_URL = 'https://api.huynq.online/';
 
 interface RateData {
   symbol: string;
