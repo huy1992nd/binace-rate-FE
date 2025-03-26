@@ -163,11 +163,11 @@ const Sidebar: React.FC<SidebarProps> = ({ setActiveTab, activeTab }) => {
                     </label>
                   ))}
                 </div>
-                <button className="reset-btn" onClick={handleResetPairs}>🔄 Reset Selection</button>
+                <button className="reset-btn" onClick={handleResetPairs}>🔄 Reset</button>
               </div>
             )}
 
-            <button className="logout-btn" onClick={handleLogout}>🚪 Logout</button>
+            <button className="logout-btn" onClick={handleLogout}>🚪 Sign Out</button>
           </div>
         ) : (
           <GoogleLoginButton setUser={setUser} />

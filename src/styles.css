@@ -260,4 +260,72 @@ tbody tr:hover {
   .intro {
     width: 90%;
   }
+
+  /* Ensure the sidebar adapts to mobile screens */
+  .sidebar {
+    width: 100%;
+    height: auto;
+    padding: 10px;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* Adjust the pair selection area */
+  .pair-selection {
+    width: 100%;
+    padding: 10px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    margin-top: 10px;
+    overflow: hidden;
+  }
+
+  /* Make checkboxes stack vertically with better spacing */
+  .pair-checkbox-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); /* Responsive columns */
+    gap: 8px;
+    max-height: 200px;
+    overflow-y: auto;
+    padding: 10px;
+  }
+
+  /* Ensure checkboxes are readable */
+  .pair-checkbox {
+    display: flex;
+    align-items: center;
+    padding: 8px;
+    background: #f8f9fa;
+    border-radius: 5px;
+    font-size: 14px;
+    transition: background 0.2s ease-in-out;
+  }
+
+  .pair-checkbox:hover {
+    background: #e9ecef;
+  }
+
+  .pair-checkbox input[type="checkbox"] {
+    transform: scale(1.2);
+    margin-right: 8px;
+  }
+
+  /* Improve reset button styling */
+  .reset-btn {
+    width: 100%;
+    margin-top: 10px;
+    padding: 8px;
+    background: #d9534f;
+    border: none;
+    color: white;
+    font-size: 14px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background 0.3s;
+  }
+
+  .reset-btn:hover {
+    background: #c9302c;
+  }
 }
