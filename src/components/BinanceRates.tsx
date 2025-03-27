@@ -1,5 +1,6 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useMemo } from "react";
 import { subscribeToRates } from "../services/socket";
+import axiosInstance, { handleLogout } from '../services/auth';
 
 interface Rate {
   symbol: string;
@@ -13,6 +14,29 @@ const BinanceRates: React.FC = () => {
   const [user, setUser] = useState(null);
   const isMounted = useRef(true);
 
+  // Handle selected pairs updates
+  useEffect(() => {
+    const updateSelectedPairs = () => {
+      const storedPairs = localStorage.getItem("selectedPairs");
+      if (storedPairs) {
+        setSelectedPairs(JSON.parse(storedPairs));
+      } else {
+        setSelectedPairs([]);
+      }
+    };
+
+    // Initial fetch of selected pairs
+    updateSelectedPairs();
+
+    // Listen for changes in localStorage
+    window.addEventListener("storage", updateSelectedPairs);
+
+    return () => {
+      window.removeEventListener("storage", updateSelectedPairs);
+    };
+  }, []);
+
+  // Handle user data and rate updates
   useEffect(() => {
     // Retrieve user data from localStorage
     const storedUser = localStorage.getItem("user");
@@ -20,22 +44,6 @@ const BinanceRates: React.FC = () => {
       setUser(JSON.parse(storedUser));
     }
 
-    // Function to update selected pairs from localStorage
-    const updateSelectedPairs = () => {
-      const storedPairs = localStorage.getItem("selectedPairs");
-      console.log('in updateSelectedPairs', storedPairs);
-      if (storedPairs) {
-        setSelectedPairs(JSON.parse(storedPairs));
-      } else {
-        setSelectedPairs([]); // Reset if no pairs selected
-      }
-    };
-
-    // Initial fetch of selected pairs
-    updateSelectedPairs();
-
-    // Listen for changes in localStorage (real-time updates)
-    window.addEventListener("storage", updateSelectedPairs);
     const unsubscribe = subscribeToRates((data) => {
       if (!isMounted.current) return;
       
@@ -56,36 +64,34 @@ const BinanceRates: React.FC = () => {
     return () => {
       isMounted.current = false;
       unsubscribe();
-      window.removeEventListener("storage", updateSelectedPairs);
     };
   }, []);
-  const filteredRates =
-  user && selectedPairs.length > 0
-    ? rates.filter((rate) => selectedPairs.includes(rate.symbol.toLowerCase()))
-    : rates;
-  const topCoins = filteredRates
-    .sort((a, b) => a.symbol.localeCompare(b.symbol)) // Sort alphabetically
-    .map((rate) => ({
-      ...rate,
-      isUp: rate.price >= rate.prevPrice, // Fix: Proper comparison
-    }));
-    
+
+  // Memoize filtered and sorted rates
+  const filteredAndSortedRates = useMemo(() => {
+    return [...rates]
+      .filter(rate => selectedPairs.length === 0 || selectedPairs.includes(rate.symbol.toLowerCase()))
+      .sort((a, b) => b.price - a.price);
+  }, [rates, selectedPairs]);
 
   return (
     <div className="container">
-      <h2>Live Binance Prices</h2>
       <table>
         <thead>
           <tr>
-            <th>Coin</th>
-            <th>Price (USDT)</th>
+            <th>Symbol</th>
+            <th>Price</th>
           </tr>
         </thead>
         <tbody>
-          {topCoins.map((rate) => (
+          {filteredAndSortedRates.map((rate) => (
             <tr key={rate.symbol}>
-              <td>{rate.symbol.toUpperCase()}</td>
-              <td className={rate.isUp ? "price-up" : "price-down"}>
+              <td>{rate.symbol}</td>
+              <td style={{
+                color: rate.price > rate.prevPrice ? '#00ff00' : 
+                       rate.price < rate.prevPrice ? '#ff0000' : 
+                       '#ffffff'
+              }}>
                 ${rate.price.toFixed(2)}
               </td>
             </tr>

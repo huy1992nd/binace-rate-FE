@@ -1,7 +1,6 @@
 import React from 'react';
 import { GoogleLogin } from '@react-oauth/google';
-import axios from 'axios';
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+import axiosInstance, { handleLogout } from '../services/auth';
 
 const GoogleLoginButton: React.FC<{ setUser: (user: any) => void }> = ({ setUser }) => {
     const handleSuccess = async (credentialResponse: any) => {
@@ -9,9 +8,7 @@ const GoogleLoginButton: React.FC<{ setUser: (user: any) => void }> = ({ setUser
 
       if (credentialResponse.credential) {
         try {
-          // ✅ Send the token to the backend
-          console.log("backend url", BACKEND_URL);
-          const response = await axios.post(`${BACKEND_URL}/auth/google`, {
+          const response = await axiosInstance.post('/auth/google', {
             token: credentialResponse.credential,
           });
 
@@ -21,25 +18,24 @@ const GoogleLoginButton: React.FC<{ setUser: (user: any) => void }> = ({ setUser
             localStorage.setItem("token", data.accessToken);
             localStorage.setItem("user", JSON.stringify(data.user));
             setUser(data.user);
-            // ✅ Fetch saved pairs from DB after login
-            await fetchSavedPairs(data.accessToken);
-              // ✅ Fetch saved pairs from DB after login
+            // Fetch saved pairs from DB after login
             const savedPairs = await fetchSavedPairs(data.accessToken);
             console.log("In List Pairs after login:", savedPairs);
 
-            // ✅ Store in localStorage and trigger UI update
+            // Store in localStorage and trigger UI update
             localStorage.setItem("selectedPairs", JSON.stringify(savedPairs));
-            window.dispatchEvent(new Event("storage")); // 🔹 Notify Sidebar
+            window.dispatchEvent(new Event("storage")); // Notify Sidebar
           }
         } catch (error) {
             console.error("Login failed", error);
+            handleLogout();
         }
       }
     };
 
-
     const handleError = () => {
         console.log('Google Login Failed');
+        handleLogout();
     };
 
     return <GoogleLogin onSuccess={handleSuccess} onError={handleError} />;
@@ -47,13 +43,12 @@ const GoogleLoginButton: React.FC<{ setUser: (user: any) => void }> = ({ setUser
 
 const fetchSavedPairs = async (token: string) => {
   try {
-    const response = await axios.get(`${BACKEND_URL}/crypto/get-pairs`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-
+    const response = await axiosInstance.get('/crypto/get-pairs');
     return response.data || [];
   } catch (error) {
     console.error("Failed to fetch get pairs", error);
+    handleLogout();
+    return [];
   }
 };
 

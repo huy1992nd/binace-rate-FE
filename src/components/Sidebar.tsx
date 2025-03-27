@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from "react";
-
-import axios from "axios";
+import axiosInstance, { handleLogout } from '../services/auth';
 import "../styles.css";
 import GoogleLoginButton from "../components/GoogleLoginButton";
-
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
 interface SidebarProps {
   setActiveTab: (tab: string) => void;
@@ -17,7 +14,9 @@ const Sidebar: React.FC<SidebarProps> = ({ setActiveTab, activeTab }) => {
   const [selectedPairs, setSelectedPairs] = useState<string[]>([]);
   const [showDropdown, setShowDropdown] = useState<boolean>(false);
   const [isClosing, setIsClosing] = useState<boolean>(false);
+  const [isUpdating, setIsUpdating] = useState(false);
 
+  // Handle user data and initial pairs fetch
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     const token = localStorage.getItem("token");
@@ -26,39 +25,41 @@ const Sidebar: React.FC<SidebarProps> = ({ setActiveTab, activeTab }) => {
     if (token) fetchSavedPairs(token);
     
     fetchTopPairs();
-    
-    // ✅ Sync selected pairs when localStorage updates
+  }, []);
+
+  // Handle localStorage changes for selected pairs
+  useEffect(() => {
     const handleStorageChange = () => {
       const updatedPairs = localStorage.getItem("selectedPairs");
-      setSelectedPairs(updatedPairs ? JSON.parse(updatedPairs) : []);
+      if (updatedPairs) {
+        setSelectedPairs(JSON.parse(updatedPairs));
+      }
     };
 
     window.addEventListener("storage", handleStorageChange);
     return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
 
+  // Save pairs to backend when selectedPairs changes
   useEffect(() => {
-    // ✅ Save pairs to backend whenever `selectedPairs` changes
     if (user && selectedPairs.length > 0) {
       savePairsToBackend(selectedPairs);
     }
-  }, [selectedPairs]);
+  }, [selectedPairs, user]);
 
   const fetchTopPairs = async () => {
     try {
-      const response = await axios.get(`${BACKEND_URL}/crypto/top-pairs`);
+      const response = await axiosInstance.get('/crypto/top-pairs');
       setTopPairs(response.data);
     } catch (error) {
       console.error("Failed to fetch top pairs", error);
+      handleLogout();
     }
   };
 
   const fetchSavedPairs = async (token: string) => {
     try {
-      const response = await axios.get(`${BACKEND_URL}/crypto/get-pairs`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
+      const response = await axiosInstance.get('/crypto/get-pairs');
       const savedPairs = response.data;
       setSelectedPairs(savedPairs);
       console.log('in fetchSavedPairs', savedPairs);
@@ -66,6 +67,7 @@ const Sidebar: React.FC<SidebarProps> = ({ setActiveTab, activeTab }) => {
       localStorage.setItem("selectedPairs", JSON.stringify(savedPairs));
     } catch (error) {
       console.error("Failed to fetch saved pairs", error);
+      handleLogout();
     }
   };
 
@@ -73,48 +75,30 @@ const Sidebar: React.FC<SidebarProps> = ({ setActiveTab, activeTab }) => {
     if (!user) return;
     
     try {
-      const token = localStorage.getItem("token");
-      await axios.post(
-        `${BACKEND_URL}/crypto/save-pairs`,
-        { pairs: updatedPairs },
-        { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } }
-      );
+      await axiosInstance.post('/crypto/save-pairs', { pairs: updatedPairs });
     } catch (error) {
       console.error("Failed to save selected pairs", error);
+      handleLogout();
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    localStorage.removeItem("selectedPairs");
-    setUser(null);
-    setSelectedPairs([]);
-    window.dispatchEvent(new Event("storage"));
-  };
-
-  const [isUpdating, setIsUpdating] = useState(false);
-
   const handlePairSelection = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (isUpdating) return; // Prevent multiple rapid updates
+    if (isUpdating) return;
   
     setIsUpdating(true);
     const value = event.target.value;
     const isChecked = event.target.checked;
   
-    setSelectedPairs((prevSelectedPairs) => {
-      const updatedPairs = isChecked
-        ? [...prevSelectedPairs, value]
-        : prevSelectedPairs.filter((pair) => pair !== value);
+    const updatedPairs = isChecked
+      ? [...selectedPairs, value]
+      : selectedPairs.filter((pair) => pair !== value);
   
-      console.log("handlePairSelection:", updatedPairs);
-      localStorage.setItem("selectedPairs", JSON.stringify(updatedPairs));
-      window.dispatchEvent(new Event("storage"));
+    console.log("handlePairSelection:", updatedPairs);
+    setSelectedPairs(updatedPairs);
+    localStorage.setItem("selectedPairs", JSON.stringify(updatedPairs));
+    window.dispatchEvent(new Event("storage"));
   
-      return updatedPairs;
-    });
-  
-    setTimeout(() => setIsUpdating(false), 200); // Small delay to prevent rapid state updates
+    setTimeout(() => setIsUpdating(false), 200);
   };
 
   const handleResetPairs = () => {
@@ -129,7 +113,7 @@ const Sidebar: React.FC<SidebarProps> = ({ setActiveTab, activeTab }) => {
       setTimeout(() => {
         setShowDropdown(false);
         setIsClosing(false);
-      }, 500); // Match the new animation duration
+      }, 500);
     } else {
       setShowDropdown(true);
     }
