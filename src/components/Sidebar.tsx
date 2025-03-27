@@ -16,6 +16,7 @@ const Sidebar: React.FC<SidebarProps> = ({ setActiveTab, activeTab }) => {
   const [topPairs, setTopPairs] = useState<string[]>([]);
   const [selectedPairs, setSelectedPairs] = useState<string[]>([]);
   const [showDropdown, setShowDropdown] = useState<boolean>(false);
+  const [isClosing, setIsClosing] = useState<boolean>(false);
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -122,8 +123,20 @@ const Sidebar: React.FC<SidebarProps> = ({ setActiveTab, activeTab }) => {
     window.dispatchEvent(new Event("storage"));
   };
 
+  const handleDropdownToggle = () => {
+    if (showDropdown) {
+      setIsClosing(true);
+      setTimeout(() => {
+        setShowDropdown(false);
+        setIsClosing(false);
+      }, 500); // Match the new animation duration
+    } else {
+      setShowDropdown(true);
+    }
+  };
+
   return (
-    <div className="sidebar">
+    <div className="sidebar-content">
       <h2>📈 Binance Tracker</h2>
       <div className="menu">
         <button
@@ -144,21 +157,21 @@ const Sidebar: React.FC<SidebarProps> = ({ setActiveTab, activeTab }) => {
             <img src={user.picture} alt="User" className="user-avatar" />
             <p className="wellcome-label">Welcome, {user.name}!</p>
 
-            <button className="settings-btn" onClick={() => setShowDropdown(!showDropdown)}>
+            <button className="settings-btn" onClick={handleDropdownToggle}>
               🎛️ Select Pairs
             </button>
 
             {showDropdown && (
-              <div className="pair-selection">
-                <div className="pair-checkbox-list scrollable-list">
+              <div className={`pair-selection ${isClosing ? 'closing' : ''}`}>
+                <div className="pair-checkbox-list">
                   {topPairs.map((pair) => (
                     <label key={pair} className="pair-checkbox">
-                       <input
-                          type="checkbox"
-                          value={pair}
-                          checked={selectedPairs.includes(pair)}
-                          onChange={handlePairSelection}
-                        />
+                      <input
+                        type="checkbox"
+                        value={pair}
+                        checked={selectedPairs.includes(pair)}
+                        onChange={handlePairSelection}
+                      />
                       {pair.toUpperCase()}
                     </label>
                   ))}

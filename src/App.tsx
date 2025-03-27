@@ -19,8 +19,10 @@ const App: React.FC = () => {
   return (
     <GoogleOAuthProvider clientId={CLIENT_ID}>
       <div className="app-container">
-        <button className="sidebar-toggle" onClick={toggleSidebar}>
-          {isSidebarOpen ? "Close Menu" : "Open Menu"}
+        <button className={`hamburger-menu ${isSidebarOpen ? 'open' : ''}`} onClick={toggleSidebar}>
+          <span></span>
+          <span></span>
+          <span></span>
         </button>
         <div className={`sidebar ${isSidebarOpen ? "open" : ""}`}>
           <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
