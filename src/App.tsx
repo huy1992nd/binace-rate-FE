@@ -3,16 +3,28 @@ import { GoogleOAuthProvider } from "@react-oauth/google"; // ✅ Import GoogleO
 import Sidebar from "./components/Sidebar";
 import Home from "./pages/Home";
 import Info from "./pages/Info";
+import "./App.css";
+
 const CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID as string;
 // import "./styles.css";
 
 const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState("prices");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
 
   return (
     <GoogleOAuthProvider clientId={CLIENT_ID}>
       <div className="app-container">
-        <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+        <button className="sidebar-toggle" onClick={toggleSidebar}>
+          {isSidebarOpen ? "Close Menu" : "Open Menu"}
+        </button>
+        <div className={`sidebar ${isSidebarOpen ? "open" : ""}`}>
+          <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+        </div>
         <div className="main-content">{activeTab === "prices" ? <Home /> : <Info />}</div>
       </div>
     </GoogleOAuthProvider>
