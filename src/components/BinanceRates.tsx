@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { subscribeToRates } from "../services/socket";
 
 interface Rate {
@@ -11,6 +11,7 @@ const BinanceRates: React.FC = () => {
   const [rates, setRates] = useState<Rate[]>([]);
   const [selectedPairs, setSelectedPairs] = useState<string[]>([]);
   const [user, setUser] = useState(null);
+  const isMounted = useRef(true);
 
   useEffect(() => {
     // Retrieve user data from localStorage
@@ -36,12 +37,14 @@ const BinanceRates: React.FC = () => {
     // Listen for changes in localStorage (real-time updates)
     window.addEventListener("storage", updateSelectedPairs);
     const unsubscribe = subscribeToRates((data) => {
+      if (!isMounted.current) return;
+      
       setRates((prevRates) => {
         const existingRate = prevRates.find((r) => r.symbol === data.symbol);
         const newRate: Rate = {
           symbol: data.symbol,
           price: parseFloat(data.price),
-          prevPrice: existingRate ? existingRate.price : parseFloat(data.price), // Fix: Initialize with current price
+          prevPrice: existingRate ? existingRate.price : parseFloat(data.price),
         };
         return [
           ...prevRates.filter((r) => r.symbol !== data.symbol),
@@ -51,8 +54,9 @@ const BinanceRates: React.FC = () => {
     });
 
     return () => {
+      isMounted.current = false;
       unsubscribe();
-      window.removeEventListener("storagee", updateSelectedPairs);
+      window.removeEventListener("storage", updateSelectedPairs);
     };
   }, []);
   const filteredRates =
