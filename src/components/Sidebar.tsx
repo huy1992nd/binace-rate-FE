@@ -137,35 +137,41 @@ const Sidebar: React.FC<SidebarProps> = ({ setActiveTab, activeTab }) => {
         </button>
 
         {user ? (
-          <div className="user-info">
-            <img src={user.picture} alt="User" className="user-avatar" />
-            <p className="wellcome-label">Welcome, {user.name}!</p>
-
-            <button className="settings-btn" onClick={handleDropdownToggle}>
-              🎛️ Select Pairs
+          <>
+            <button
+              className={activeTab === "user" ? "active" : ""}
+              onClick={() => setActiveTab("user")}
+            >
+              👤 User Info
             </button>
+            <div className="user-info">
+              <img src={user.picture} alt="User" className="user-avatar" />
+              <p className="wellcome-label">Welcome, {user.name}!</p>
 
-            {showDropdown && (
-              <div className={`pair-selection ${isClosing ? 'closing' : ''}`}>
-                <div className="pair-checkbox-list">
-                  {topPairs.map((pair) => (
-                    <label key={pair} className="pair-checkbox">
-                      <input
-                        type="checkbox"
-                        value={pair}
-                        checked={selectedPairs.includes(pair)}
-                        onChange={handlePairSelection}
-                      />
-                      {pair.toUpperCase()}
-                    </label>
-                  ))}
+              <button className="settings-btn" onClick={handleDropdownToggle}>
+                🎛️ Select Pairs
+              </button>
+
+              {showDropdown && (
+                <div className={`pair-selection ${isClosing ? 'closing' : ''}`}>
+                  <div className="pair-checkbox-list">
+                    {topPairs.map((pair) => (
+                      <label key={pair} className="pair-checkbox">
+                        <input
+                          type="checkbox"
+                          value={pair}
+                          checked={selectedPairs.includes(pair)}
+                          onChange={handlePairSelection}
+                        />
+                        {pair.toUpperCase()}
+                      </label>
+                    ))}
+                  </div>
+                  <button className="reset-btn" onClick={handleResetPairs}>🔄 Reset</button>
                 </div>
-                <button className="reset-btn" onClick={handleResetPairs}>🔄 Reset</button>
-              </div>
-            )}
-
-            <button className="logout-btn" onClick={handleLogout}>🚪 Sign Out</button>
-          </div>
+              )}
+            </div>
+          </>
         ) : (
           <GoogleLoginButton setUser={setUser} />
         )}

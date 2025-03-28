@@ -85,7 +85,7 @@ body {
 
 /* User Info Styles */
 .user-info {
-  width: 100%;
+  width: 90%;
   margin-top: 20px;
   padding: 15px;
   background: var(--bg-light);
