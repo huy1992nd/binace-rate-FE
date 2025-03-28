@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { GoogleOAuthProvider } from "@react-oauth/google"; // ✅ Import GoogleOAuthProvider
 import Sidebar from "./components/Sidebar";
 import Home from "./pages/Home";
@@ -10,8 +10,17 @@ const CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID as string;
 // import "./styles.css";
 
 const App: React.FC = () => {
-  const [activeTab, setActiveTab] = useState("prices");
+  const [activeTab, setActiveTab] = useState(() => {
+    // Lấy active tab từ localStorage khi khởi tạo
+    const savedTab = localStorage.getItem("activeTab");
+    return savedTab || "prices";
+  });
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  // Lưu active tab vào localStorage mỗi khi nó thay đổi
+  useEffect(() => {
+    localStorage.setItem("activeTab", activeTab);
+  }, [activeTab]);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);

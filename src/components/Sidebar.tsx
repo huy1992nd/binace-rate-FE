@@ -123,27 +123,8 @@ const Sidebar: React.FC<SidebarProps> = ({ setActiveTab, activeTab }) => {
     <div className="sidebar-content">
       <h2>📈 Binance Tracker</h2>
       <div className="menu">
-        <button
-          className={activeTab === "prices" ? "active" : ""}
-          onClick={() => setActiveTab("prices")}
-        >
-          🔥 Live Prices
-        </button>
-        <button
-          className={activeTab === "info" ? "active" : ""}
-          onClick={() => setActiveTab("info")}
-        >
-          ℹ️ Introduction
-        </button>
-
-        {user ? (
+      {user ? (
           <>
-            <button
-              className={activeTab === "user" ? "active" : ""}
-              onClick={() => setActiveTab("user")}
-            >
-              👤 User Info
-            </button>
             <div className="user-info">
               <img src={user.picture} alt="User" className="user-avatar" />
               <p className="wellcome-label">Welcome, {user.name}!</p>
@@ -171,10 +152,30 @@ const Sidebar: React.FC<SidebarProps> = ({ setActiveTab, activeTab }) => {
                 </div>
               )}
             </div>
+            <button
+              className={activeTab === "user" ? "active" : ""}
+              onClick={() => setActiveTab("user")}
+            >
+              👤 User Info
+            </button>
           </>
         ) : (
           <GoogleLoginButton setUser={setUser} />
         )}
+        <button
+          className={activeTab === "prices" ? "active" : ""}
+          onClick={() => setActiveTab("prices")}
+        >
+          🔥 Live Prices
+        </button>
+        <button
+          className={activeTab === "info" ? "active" : ""}
+          onClick={() => setActiveTab("info")}
+        >
+          ℹ️ Introduction
+        </button>
+
+        
       </div>
     </div>
   );

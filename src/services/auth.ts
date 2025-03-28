@@ -30,6 +30,7 @@ axiosInstance.interceptors.response.use(
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       localStorage.removeItem('selectedPairs');
+      localStorage.removeItem('activeTab');
       window.location.reload(); // Reload the page to trigger logout
     }
     return Promise.reject(error);
@@ -40,6 +41,7 @@ export const handleLogout = () => {
   localStorage.removeItem('token');
   localStorage.removeItem('user');
   localStorage.removeItem('selectedPairs');
+  localStorage.removeItem('activeTab');
   window.location.reload();
 };
 

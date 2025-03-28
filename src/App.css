@@ -25,7 +25,10 @@ body {
   padding-left: 10px;
 }
 
-
+.description-block {
+  padding: 0 0 15px 0;
+  margin: 0;
+}
 
 .app-container {
   display: flex;
