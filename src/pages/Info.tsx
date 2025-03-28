@@ -2,7 +2,7 @@ import React from "react";
 
 const Info: React.FC = () => {
   return (
-    <div className="h-full flex items-center justify-center">
+    <div className="rate-info h-full flex items-center justify-center">
       <div className="max-w-2xl mx-auto p-8 bg-gradient-to-br from-white to-gray-100 rounded-3xl shadow-2xl border border-gray-200 text-center">
         <h2 className="text-3xl font-extrabold flex justify-center items-center gap-2 mb-6 text-gray-800">
           <span role="img" aria-label="info">ℹ️</span>  Binance Rate info
