@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axiosInstance from '../services/auth';
 import Toast from '../components/Toast';
+import '../styles/ManageUsers.css';
 
 interface User {
   id: string;
@@ -61,7 +62,6 @@ const EditUserModal: React.FC<EditUserModalProps> = ({ user, onClose, onUpdate }
         description: formData.description
       });
       
-      // Cập nhật lại thông tin user với dữ liệu mới từ server
       const updatedUser: User = {
         ...user,
         name: formData.name,
@@ -79,101 +79,47 @@ const EditUserModal: React.FC<EditUserModalProps> = ({ user, onClose, onUpdate }
   if (!user) return null;
 
   return (
-    <div className="modal-overlay" style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: 'rgba(0, 0, 0, 0.7)',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      zIndex: 1000
-    }}>
-      <div className="modal-content" style={{
-        background: 'rgba(0, 0, 0, 0.9)',
-        padding: '20px',
-        borderRadius: '10px',
-        width: '90%',
-        maxWidth: '500px',
-        border: '1px solid #f0b90b'
-      }}>
-        <h3 style={{ color: '#f0b90b', marginBottom: '20px' }}>Edit User</h3>
+    <div className="modal-overlay">
+      <div className="modal-content">
+        <h3>Edit User</h3>
         <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: '15px' }}>
-            <label style={{ display: 'block', marginBottom: '5px', color: 'white' }}>Name</label>
+          <div className="modal-form-group">
+            <label>Name</label>
             <input
               type="text"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              style={{
-                width: '100%',
-                padding: '8px',
-                borderRadius: '5px',
-                border: '1px solid #f0b90b',
-                background: 'transparent',
-                color: 'white'
-              }}
+              className="modal-input"
             />
           </div>
-          <div style={{ marginBottom: '15px' }}>
-            <label style={{ display: 'block', marginBottom: '5px', color: 'white' }}>Email</label>
+          <div className="modal-form-group">
+            <label>Email</label>
             <input
               type="email"
               value={formData.email}
               disabled
-              style={{
-                width: '100%',
-                padding: '8px',
-                borderRadius: '5px',
-                border: '1px solid #666',
-                background: 'rgba(255, 255, 255, 0.1)',
-                color: '#999',
-                cursor: 'not-allowed'
-              }}
+              className="modal-input"
             />
           </div>
-          <div style={{ marginBottom: '15px' }}>
-            <label style={{ display: 'block', marginBottom: '5px', color: 'white' }}>Description</label>
+          <div className="modal-form-group">
+            <label>Description</label>
             <textarea
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              style={{
-                width: '100%',
-                padding: '8px',
-                borderRadius: '5px',
-                border: '1px solid #f0b90b',
-                background: 'transparent',
-                color: 'white'
-              }}
+              className="modal-input"
             />
           </div>
-          <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+          <div className="modal-buttons">
             <button
               type="button"
               onClick={onClose}
-              style={{
-                padding: '8px 16px',
-                background: '#666',
-                color: 'white',
-                border: 'none',
-                borderRadius: '5px',
-                cursor: 'pointer'
-              }}
+              className="modal-button cancel"
             >
               Cancel
             </button>
             <button
               type="submit"
-              style={{
-                padding: '8px 16px',
-                background: '#f0b90b',
-                color: 'black',
-                border: 'none',
-                borderRadius: '5px',
-                cursor: 'pointer'
-              }}
+              className="modal-button save"
             >
               Save Changes
             </button>
@@ -191,7 +137,7 @@ const ManageUsers: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [total, setTotal] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
-  const ITEMS_PER_PAGE = 5; // Tạo biến dùng chung cho limit
+  const ITEMS_PER_PAGE = 5;
   const [queryParams, setQueryParams] = useState<QueryParams>({
     page: 1,
     limit: ITEMS_PER_PAGE,
@@ -204,6 +150,61 @@ const ManageUsers: React.FC = () => {
     message: '',
     type: 'success'
   });
+
+  // Thêm CSS cho responsive
+  useEffect(() => {
+    const styles = `
+      @media screen and (max-width: 768px) {
+        .user-profile {
+          padding: 1rem;
+          margin: 1rem;
+          width: 95%;
+          max-width: 100%;
+        }
+
+        .info-section {
+          padding: 1rem;
+          width: 100%;
+          overflow-x: hidden;
+        }
+
+        .search-filters {
+          flex-direction: column;
+          width: 100%;
+        }
+
+        .search-filters input,
+        .search-filters select {
+          width: 100%;
+        }
+
+        .users-table-container {
+          margin: 0;
+          padding: 0;
+          max-height: 60vh;
+        }
+
+        table {
+          font-size: 14px;
+        }
+
+        th, td {
+          padding: 8px;
+        }
+
+        .profile-info {
+          gap: 1rem;
+        }
+      }
+    `;
+
+    const styleSheet = document.createElement("style");
+    styleSheet.innerText = styles;
+    document.head.appendChild(styleSheet);
+    return () => {
+      document.head.removeChild(styleSheet);
+    };
+  }, []);
 
   const fetchUsers = async () => {
     try {
@@ -401,20 +402,13 @@ const ManageUsers: React.FC = () => {
           </div>
 
           <div className="info-section">
-            <div className="search-filters" style={{ marginBottom: '20px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+            <div className="search-filters">
               <input
                 type="text"
                 name="name"
                 placeholder="Search by name"
                 value={queryParams.name || ''}
                 onChange={handleSearch}
-                style={{
-                  padding: '8px',
-                  borderRadius: '5px',
-                  border: '1px solid #f0b90b',
-                  background: 'transparent',
-                  color: 'white'
-                }}
               />
               <input
                 type="text"
@@ -422,24 +416,10 @@ const ManageUsers: React.FC = () => {
                 placeholder="Search by email"
                 value={queryParams.email || ''}
                 onChange={handleSearch}
-                style={{
-                  padding: '8px',
-                  borderRadius: '5px',
-                  border: '1px solid #f0b90b',
-                  background: 'transparent',
-                  color: 'white'
-                }}
               />
               <select
                 value={queryParams.role || ''}
                 onChange={handleRoleFilter}
-                style={{
-                  padding: '8px',
-                  borderRadius: '5px',
-                  border: '1px solid #f0b90b',
-                  background: 'transparent',
-                  color: 'white'
-                }}
               >
                 <option value="">All Roles</option>
                 <option value="admin">Admin</option>
@@ -448,110 +428,78 @@ const ManageUsers: React.FC = () => {
             </div>
 
             <div className="users-table-container">
-              <table>
+              <table className="users-table">
                 <thead>
                   <tr>
-                    <th onClick={() => handleSort('name')} style={{ cursor: 'pointer' }}>
-                      User {queryParams.sortBy === 'name' && (queryParams.sortOrder === 'ASC' ? '↑' : '↓')}
-                    </th>
-                    <th onClick={() => handleSort('email')} style={{ cursor: 'pointer' }}>
-                      Email {queryParams.sortBy === 'email' && (queryParams.sortOrder === 'ASC' ? '↑' : '↓')}
-                    </th>
-                    <th onClick={() => handleSort('role')} style={{ cursor: 'pointer' }}>
-                      Role {queryParams.sortBy === 'role' && (queryParams.sortOrder === 'ASC' ? '↑' : '↓')}
-                    </th>
-                    <th>Pairs</th>
-                    <th onClick={() => handleSort('createdAt')} style={{ cursor: 'pointer' }}>
-                      Joined {queryParams.sortBy === 'createdAt' && (queryParams.sortOrder === 'ASC' ? '↑' : '↓')}
-                    </th>
-                    <th onClick={() => handleSort('lastLogin')} style={{ cursor: 'pointer' }}>
-                      Last Login {queryParams.sortBy === 'lastLogin' && (queryParams.sortOrder === 'ASC' ? '↑' : '↓')}
-                    </th>
-                    <th>Actions</th>
+                    <th style={{ width: '20%' }}>User</th>
+                    <th style={{ width: '25%' }}>Email</th>
+                    <th style={{ width: '10%' }}>Role</th>
+                    <th style={{ width: '15%' }}>Pairs</th>
+                    <th style={{ width: '15%' }}>Last Login</th>
+                    <th style={{ width: '15%' }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {users.map(user => (
                     <tr key={user.id}>
                       <td>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <div className="user-info">
                           <img 
                             src={user.picture} 
                             alt={user.name} 
-                            style={{ width: '30px', height: '30px', borderRadius: '50%' }}
+                            className="user-avatar"
                           />
                           {user.name}
                         </div>
                       </td>
-                      <td>{user.email}</td>
+                      <td>
+                        <div className="email-cell">
+                          <span title={user.email}>{user.email}</span>
+                        </div>
+                      </td>
                       <td>
                         <select
                           value={user.role}
                           onChange={(e) => handleUpdateRole(user.id, e.target.value)}
-                          style={{
-                            background: 'transparent',
-                            color: 'white',
-                            border: '1px solid #f0b90b',
-                            padding: '5px',
-                            borderRadius: '5px'
-                          }}
+                          className="role-select"
                         >
                           <option value="user">User</option>
                           <option value="admin">Admin</option>
                         </select>
                       </td>
                       <td>
-                        <div style={{ 
-                          display: 'flex', 
-                          flexWrap: 'wrap', 
-                          gap: '4px',
-                          maxWidth: '200px',
-                          overflow: 'auto',
-                          maxHeight: '100px'
-                        }}>
+                        <div className="pairs-container">
                           {user.pairs?.map(pair => (
                             <span 
                               key={pair}
-                              style={{
-                                background: 'rgba(240, 185, 11, 0.2)',
-                                padding: '2px 6px',
-                                borderRadius: '4px',
-                                fontSize: '12px'
-                              }}
+                              className="pair-tag"
                             >
                               {pair.toUpperCase()}
                             </span>
                           ))}
                         </div>
                       </td>
-                      <td>{user.createdAt ? new Date(user.createdAt).toLocaleString() : 'N/A'}</td>
-                      <td>{user.lastLogin ? new Date(user.lastLogin).toLocaleString() : 'Never'}</td>
                       <td>
-                        <div style={{ display: 'flex', gap: '5px' }}>
+                        {user.lastLogin ? new Date(user.lastLogin).toLocaleString('vi-VN', {
+                          year: 'numeric',
+                          month: '2-digit',
+                          day: '2-digit',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        }) : 'Never'}
+                      </td>
+                      <td>
+                        <div className="action-buttons">
                           <button
                             onClick={() => handleEditUser(user)}
-                            style={{
-                              background: '#f0b90b',
-                              color: 'black',
-                              border: 'none',
-                              padding: '5px 10px',
-                              borderRadius: '5px',
-                              cursor: 'pointer'
-                            }}
+                            className="action-button edit-button"
                           >
                             Edit
                           </button>
                           <button
                             onClick={() => handleDeleteUser(user.id)}
                             disabled={user.id === currentUser?.id}
-                            style={{
-                              background: user.id === currentUser?.id ? '#666' : '#e74c3c',
-                              color: 'white',
-                              border: 'none',
-                              padding: '5px 10px',
-                              borderRadius: '5px',
-                              cursor: user.id === currentUser?.id ? 'not-allowed' : 'pointer'
-                            }}
+                            className="action-button delete-button"
                           >
                             Delete
                           </button>
@@ -563,41 +511,21 @@ const ManageUsers: React.FC = () => {
               </table>
             </div>
 
-            {/* Pagination */}
-            <div className="pagination" style={{ 
-              display: 'flex', 
-              justifyContent: 'center', 
-              gap: '10px', 
-              marginTop: '20px' 
-            }}>
+            <div className="pagination">
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 1}
-                style={{
-                  padding: '8px 16px',
-                  background: currentPage === 1 ? '#666' : '#f0b90b',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '5px',
-                  cursor: currentPage === 1 ? 'not-allowed' : 'pointer'
-                }}
+                className="pagination-button"
               >
                 Previous
               </button>
-              <span style={{ padding: '8px 16px', color: 'white' }}>
+              <span className="pagination-info">
                 Page {currentPage} of {Math.ceil(total / ITEMS_PER_PAGE)}
               </span>
               <button
                 onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage >= Math.ceil(total / ITEMS_PER_PAGE)}
-                style={{
-                  padding: '8px 16px',
-                  background: currentPage >= Math.ceil(total / ITEMS_PER_PAGE) ? '#666' : '#f0b90b',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '5px',
-                  cursor: currentPage >= Math.ceil(total / ITEMS_PER_PAGE) ? 'not-allowed' : 'pointer'
-                }}
+                className="pagination-button"
               >
                 Next
               </button>
