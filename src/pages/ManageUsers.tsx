@@ -137,6 +137,7 @@ const ManageUsers: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [total, setTotal] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
+  const [isStatsExpanded, setIsStatsExpanded] = useState(false);
   const ITEMS_PER_PAGE = 5;
   const [queryParams, setQueryParams] = useState<QueryParams>({
     page: 1,
@@ -164,18 +165,18 @@ const ManageUsers: React.FC = () => {
 
         .info-section {
           padding: 1rem;
-          width: 100%;
+          width: 94%;
           overflow-x: hidden;
         }
 
         .search-filters {
           flex-direction: column;
-          width: 100%;
+          width: 80%;
         }
 
         .search-filters input,
         .search-filters select {
-          width: 100%;
+          width: 96%;
         }
 
         .users-table-container {
@@ -355,6 +356,20 @@ const ManageUsers: React.FC = () => {
     }
   };
 
+  const toggleStats = () => {
+    setIsStatsExpanded(!isStatsExpanded);
+  };
+
+  // Thêm các class mới vào CSS
+  const tableColumnStyles = {
+    user: 'col-user',
+    email: 'col-email',
+    role: 'col-role',
+    pairs: 'col-pairs',
+    lastLogin: 'col-last-login',
+    actions: 'col-actions'
+  };
+
   if (loading) {
     return (
       <div className="container">
@@ -394,11 +409,30 @@ const ManageUsers: React.FC = () => {
         </div>
         
         <div className="profile-info">
-          <div className="info-section">
-            <h3>📊 User Statistics</h3>
-            <p>Total Users: {total}</p>
-            <p>Admin Users: {users.filter(user => user.role === 'admin').length}</p>
-            <p>Regular Users: {users.filter(user => user.role === 'user').length}</p>
+          <div className={`info-section ${isStatsExpanded ? 'expanded' : 'collapsed'}`} onClick={toggleStats}>
+            <div className="info-section-header">
+              <h3>
+                <span>📊</span>
+                User Statistics
+              </h3>
+              <span className={`toggle-icon ${isStatsExpanded ? 'expanded' : ''}`}>
+                {isStatsExpanded ? '▼' : '▶'}
+              </span>
+            </div>
+            <div className="info-section-content">
+              <p>
+                <span>👥</span>
+                Total Users: {total}
+              </p>
+              <p>
+                <span>👑</span>
+                Admin Users: {users.filter(user => user.role === 'admin').length}
+              </p>
+              <p>
+                <span>👤</span>
+                Regular Users: {users.filter(user => user.role === 'user').length}
+              </p>
+            </div>
           </div>
 
           <div className="info-section">
@@ -431,12 +465,12 @@ const ManageUsers: React.FC = () => {
               <table className="users-table">
                 <thead>
                   <tr>
-                    <th style={{ width: '20%' }}>User</th>
-                    <th style={{ width: '25%' }}>Email</th>
-                    <th style={{ width: '10%' }}>Role</th>
-                    <th style={{ width: '15%' }}>Pairs</th>
-                    <th style={{ width: '15%' }}>Last Login</th>
-                    <th style={{ width: '15%' }}>Actions</th>
+                    <th className={tableColumnStyles.user}>User</th>
+                    <th className={tableColumnStyles.email}>Email</th>
+                    <th className={tableColumnStyles.role}>Role</th>
+                    <th className={tableColumnStyles.pairs}>Pairs</th>
+                    <th className={tableColumnStyles.lastLogin}>Last Login</th>
+                    <th className={tableColumnStyles.actions}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -484,8 +518,6 @@ const ManageUsers: React.FC = () => {
                           year: 'numeric',
                           month: '2-digit',
                           day: '2-digit',
-                          hour: '2-digit',
-                          minute: '2-digit'
                         }) : 'Never'}
                       </td>
                       <td>
