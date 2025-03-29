@@ -251,10 +251,6 @@ const Sidebar: React.FC<SidebarProps> = ({ setActiveTab, activeTab }) => {
                 <span className="text">Manage Users</span>
               </button>
             )}
-            <button className="menu-item logout" onClick={handleLogout}>
-              <span className="icon">🚪</span>
-              <span className="text">Logout</span>
-            </button>
           </>
         ) : (
           <GoogleLoginButton 

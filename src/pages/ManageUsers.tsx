@@ -182,7 +182,6 @@ const ManageUsers: React.FC = () => {
         .users-table-container {
           margin: 0;
           padding: 0;
-          max-height: 60vh;
         }
 
         table {
@@ -496,6 +495,7 @@ const ManageUsers: React.FC = () => {
                           value={user.role}
                           onChange={(e) => handleUpdateRole(user.id, e.target.value)}
                           className="role-select"
+                          disabled={user.id === currentUser?.id}
                         >
                           <option value="user">User</option>
                           <option value="admin">Admin</option>
