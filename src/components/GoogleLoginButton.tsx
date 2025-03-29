@@ -2,43 +2,87 @@ import React from 'react';
 import { GoogleLogin } from '@react-oauth/google';
 import axiosInstance, { handleLogout } from '../services/auth';
 
-const GoogleLoginButton: React.FC<{ setUser: (user: any) => void }> = ({ setUser }) => {
-    const handleSuccess = async (credentialResponse: any) => {
-      console.log("Google Login Success:", credentialResponse);
+interface GoogleLoginButtonProps {
+  setUser: (user: any) => void;
+  setTopPairs: (pairs: string[]) => void;
+  onLoginSuccess: () => void;
+  onLoginError: () => void;
+}
 
-      if (credentialResponse.credential) {
-        try {
-          const response = await axiosInstance.post('/auth/google', {
-            token: credentialResponse.credential,
-          });
+const GoogleLoginButton: React.FC<GoogleLoginButtonProps> = ({ 
+  setUser, 
+  setTopPairs, 
+  onLoginSuccess,
+  onLoginError 
+}) => {
+  const fetchTopPairs = async () => {
+    try {
+      const response = await axiosInstance.get('/crypto/top-pairs');
+      return response.data;
+    } catch (error) {
+      console.error("Failed to fetch top pairs", error);
+      handleLogout();
+      return [];
+    }
+  };
 
-          const data = await response.data;
+  const handleSuccess = async (credentialResponse: any) => {
+    console.log("Google Login Success:", credentialResponse);
 
-          if (data.accessToken) {
-            localStorage.setItem("token", data.accessToken);
-            localStorage.setItem("user", JSON.stringify(data.user));
-            setUser(data.user);
-            // Fetch saved pairs from DB after login
-            const savedPairs = await fetchSavedPairs(data.accessToken);
-            console.log("In List Pairs after login:", savedPairs);
+    if (credentialResponse.credential) {
+      try {
+        const response = await axiosInstance.post('/auth/google', {
+          credential: credentialResponse.credential,
+        });
 
-            // Store in localStorage and trigger UI update
-            localStorage.setItem("selectedPairs", JSON.stringify(savedPairs));
-            window.dispatchEvent(new Event("storage")); // Notify Sidebar
-          }
-        } catch (error) {
-            console.error("Login failed", error);
-            handleLogout();
+        const data = await response.data;
+
+        if (data.accessToken) {
+          // Store user data
+          localStorage.setItem("token", data.accessToken);
+          localStorage.setItem("user", JSON.stringify(data.user));
+          setUser(data.user);
+          
+          // Fetch saved pairs from DB after login
+          const savedPairs = await fetchSavedPairs(data.accessToken);
+          console.log("In List Pairs after login:", savedPairs);
+
+          // Store in localStorage
+          localStorage.setItem("selectedPairs", JSON.stringify(savedPairs));
+
+          // Fetch top pairs and update UI
+          const topPairs = await fetchTopPairs();
+          localStorage.setItem("topPairs", JSON.stringify(topPairs));
+          setTopPairs(topPairs);
+
+          // Trigger storage event to update UI
+          window.dispatchEvent(new Event('storage'));
+
+          // Notify parent component about successful login
+          onLoginSuccess();
         }
-      }
-    };
-
-    const handleError = () => {
-        console.log('Google Login Failed');
+      } catch (error) {
+        console.error("Login failed", error);
+        onLoginError();
         handleLogout();
-    };
+      }
+    }
+  };
 
-    return <GoogleLogin onSuccess={handleSuccess} onError={handleError} />;
+  const handleError = () => {
+    console.log('Login Failed');
+    onLoginError();
+    handleLogout();
+  };
+
+  return (
+    <GoogleLogin 
+      onSuccess={handleSuccess} 
+      onError={handleError} 
+      useOneTap 
+      theme="filled_black"
+    />
+  );
 };
 
 const fetchSavedPairs = async (token: string) => {

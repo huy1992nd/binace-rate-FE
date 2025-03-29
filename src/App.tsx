@@ -4,6 +4,7 @@ import Sidebar from "./components/Sidebar";
 import Home from "./pages/Home";
 import Info from "./pages/Info";
 import InfoUser from "./pages/InfoUser";
+import ManageUsers from "./pages/ManageUsers";
 import "./App.css";
 
 const CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID as string;
@@ -34,6 +35,8 @@ const App: React.FC = () => {
         return <Info />;
       case "user":
         return <InfoUser />;
+      case "manage-users":
+        return <ManageUsers />;
       default:
         return <Home />;
     }
