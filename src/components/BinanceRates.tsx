@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import "../styles.css";
+import "../App.css";
 import { useSelector } from 'react-redux';
 import { RootState } from '../store/store';
 import { subscribeToRates } from "../services/socket";
@@ -7,6 +7,7 @@ import { subscribeToRates } from "../services/socket";
 interface Rate {
   symbol: string;
   price: string;
+  priceChange: 'up' | 'down' | null;
 }
 
 const BinanceRates: React.FC = () => {
@@ -18,6 +19,7 @@ const BinanceRates: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const isMounted = useRef(true);
+  const previousPrices = useRef<{ [key: string]: number }>({});
 
   const selectedPairs = useSelector((state: RootState) => state.selectedPairs.pairs);
 
@@ -25,11 +27,18 @@ const BinanceRates: React.FC = () => {
     const unsubscribe = subscribeToRates((data) => {
       if (!isMounted.current) return;
       setRates(prevRates => {
+        const newPrice = parseFloat(data.price);
+        const oldPrice = previousPrices.current[data.symbol];
+        const priceChange = oldPrice ? (newPrice > oldPrice ? 'up' : newPrice < oldPrice ? 'down' : null) : null;
+        
+        previousPrices.current[data.symbol] = newPrice;
+
         const existingRate = prevRates.find(rate => rate.symbol === data.symbol);
         if (!existingRate) {
           return [...prevRates, {
             symbol: data.symbol,
-            price: parseFloat(data.price).toFixed(8),
+            price: newPrice.toFixed(2),
+            priceChange
           }];
         }
 
@@ -37,7 +46,8 @@ const BinanceRates: React.FC = () => {
           if (rate.symbol === data.symbol) {
             return {
               ...rate,
-              price: parseFloat(data.price).toFixed(8),
+              price: newPrice.toFixed(2),
+              priceChange
             };
           }
           return rate;
@@ -60,16 +70,19 @@ const BinanceRates: React.FC = () => {
     }));
   };
 
-  const sortedRates = [...rates].sort((a, b) => {
-    const aValue = parseFloat(a[sortConfig.key]);
-    const bValue = parseFloat(b[sortConfig.key]);
 
-    return sortConfig.direction === "asc" ? aValue - bValue : bValue - aValue;
+  const sortedRates = [...rates].sort((a, b) => {
+    if (sortConfig.key === 'price') {
+      const aValue = parseFloat(a.price);
+      const bValue = parseFloat(b.price);
+      return sortConfig.direction === "asc" ? aValue - bValue : bValue - aValue;
+    }
+    return a.symbol.localeCompare(b.symbol);
   });
 
   // Filter rates based on selected pairs
   const filteredRates = selectedPairs.length > 0 
-    ? sortedRates.filter((rate) => selectedPairs.includes(rate.symbol))
+    ? sortedRates.filter((rate) => selectedPairs.includes(rate.symbol.toLowerCase()))
     : sortedRates;
 
   const getSortIcon = (key: keyof Rate) => {
@@ -103,7 +116,9 @@ const BinanceRates: React.FC = () => {
             {filteredRates.map((rate) => (
               <tr key={rate.symbol}>
                 <td>{rate.symbol}</td>
-                <td>{rate.price}</td>
+                <td className={rate.priceChange === 'up' ? 'price-up' : rate.priceChange === 'down' ? 'price-down' : ''}>
+                  {rate.price}
+                </td>
               </tr>
             ))}
           </tbody>

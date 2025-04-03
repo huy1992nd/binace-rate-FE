@@ -49,6 +49,7 @@ body {
   border-right: 2px solid var(--primary-color);
   z-index: 1000;
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .sidebar h2 {
@@ -93,7 +94,7 @@ body {
 
 /* User Info Styles */
 .user-info {
-  width: 90%;
+  width: 100%;
   margin-top: 20px;
   padding: 15px;
   background: var(--bg-light);
@@ -119,7 +120,7 @@ body {
 
 /* Pair Selection Styles */
 .pair-selection {
-  width: 90%;
+  width: 100%;
   margin-top: 10px;
   background: rgba(0, 0, 0, 0.3);
   border-radius: 10px;
@@ -129,14 +130,25 @@ body {
   transform-origin: top;
   max-height: 300px;
   overflow: hidden;
+  box-sizing: border-box;
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+}
+
+.pair-selection.closing {
+  animation: slideUp var(--transition-speed) ease-out forwards;
 }
 
 .pair-checkbox-list {
   max-height: 200px;
   overflow-y: auto;
+  overflow-x: hidden;
   display: flex;
   flex-direction: column;
   gap: 5px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .pair-checkbox {
@@ -149,6 +161,29 @@ body {
   font-weight: 500;
   transition: all var(--transition-speed) ease;
   animation: fadeIn var(--transition-speed) ease-out;
+}
+
+.scrollable-list {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: auto;
+  max-height: 60px;
+  max-width: 100%;
+  padding: 5px;
+  border: 2px solid #f0b90b;
+  background: white;
+  border-radius: 5px;
+  box-sizing: border-box;
+}
+
+.pair-checkbox-list, .scrollable-list {
+  background: #fff;
+  border: 2px solid #f0b90b;
+  border-radius: 5px;
+  padding: 5px;
+  box-sizing: border-box;
+  width: 100%;
 }
 
 .pair-checkbox:hover {
@@ -254,6 +289,330 @@ tbody tr:hover {
   font-weight: bold;
 }
 
+/* Manage Users Styles */
+.manage-users-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.search-filters {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.search-filters input,
+.search-filters select {
+  padding: 8px 12px;
+  border: 1px solid var(--primary-color);
+  border-radius: var(--border-radius);
+  background: var(--bg-light);
+  color: var(--text-light);
+  width: 200px;
+  min-width: 200px;
+  box-sizing: border-box;
+}
+
+.search-filters input:focus,
+.search-filters select:focus {
+  outline: none;
+  border-color: var(--primary-hover);
+}
+
+.user-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  background: var(--bg-dark);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+}
+
+.user-table th,
+.user-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--bg-light);
+}
+
+.user-table th {
+  background: var(--primary-color);
+  color: var(--text-dark);
+  font-weight: bold;
+}
+
+.user-table tr:hover {
+  background: var(--bg-lighter);
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 200px;
+  overflow: hidden;
+}
+
+.user-avatar-small {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.user-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.email-cell {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.role-select {
+  padding: 6px 10px;
+  border: 1px solid var(--primary-color);
+  border-radius: var(--border-radius);
+  background: var(--bg-light);
+  color: var(--text-light);
+  cursor: pointer;
+}
+
+.role-select:disabled {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: #666;
+  color: #999;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.role-select:disabled:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: #666;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.edit-button,
+.delete-button {
+  padding: 6px 12px;
+  border: none;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: var(--transition-speed);
+}
+
+.edit-button {
+  background: var(--primary-color);
+  color: var(--text-dark);
+}
+
+.edit-button:hover {
+  background: var(--primary-hover);
+}
+
+.delete-button {
+  background: var(--danger-color);
+  color: var(--text-light);
+}
+
+.delete-button:hover {
+  background: var(--danger-hover);
+}
+
+/* Mobile Styles */
+@media screen and (max-width: 768px) {
+  .app-container {
+    position: relative;
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .hamburger-menu {
+    display: block;
+    position: fixed;
+    top: 15px;
+    right: 15px;
+    z-index: 1001;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 10px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+
+  }
+
+  .hamburger-menu span {
+    display: block;
+    width: 30px;
+    height: 3px;
+    background-color: var(--primary-color);
+    border-radius: 3px;
+    transition: all var(--transition-speed) ease-in-out;
+    position: absolute;
+    left: 5px;
+  }
+
+  .hamburger-menu span:nth-child(1) { top: 12px; }
+  .hamburger-menu span:nth-child(2) { top: 19px; }
+  .hamburger-menu span:nth-child(3) { top: 26px; }
+
+  .hamburger-menu.open span:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+  }
+
+  .hamburger-menu.open span:nth-child(2) {
+    opacity: 0;
+  }
+
+  .hamburger-menu.open span:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100vh;
+    transform: translateX(-100%);
+    transition: transform var(--transition-speed) ease-in-out;
+    z-index: 1000;
+    background: var(--bg-darker);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 20px;
+    width: 250px;
+    box-sizing: border-box;
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .main-content {
+    margin-top: 60px;
+    width: 100%;
+    padding: 20px;
+  }
+
+  .pair-selection {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .pair-selection.closing {
+    animation: slideUp var(--transition-speed) ease-out forwards;
+  }
+
+  .pair-checkbox {
+    animation: fadeIn var(--transition-speed) ease-out;
+  }
+
+  .reset-btn {
+    animation: fadeIn var(--transition-speed) ease-out 0.2s both;
+  }
+
+  .search-filters {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .search-filters input,
+  .search-filters select {
+    width: 100%;
+    min-width: 100%;
+  }
+
+  /* .user-info,
+  .email-cell {
+    max-width: 150px;
+  } */
+}
+
+
+/* Desktop Styles */
+@media screen and (min-width: 769px) {
+  /* Hamburger menu styles */
+.hamburger-menu {
+  display: none;
+  position: fixed;
+  top: 15px;
+  right: 15px;
+  z-index: 1001;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 10px;
+  width: 40px;
+  height: 40px;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.hamburger-menu span {
+  display: block;
+  width: 30px;
+  height: 3px;
+  background-color: #f0b90b;
+  border-radius: 3px;
+  transition: all 0.3s ease-in-out;
+  position: absolute;
+  left: 5px;
+}
+
+.hamburger-menu span:nth-child(1) { top: 12px; }
+.hamburger-menu span:nth-child(2) { top: 19px; }
+.hamburger-menu span:nth-child(3) { top: 26px; }
+
+.hamburger-menu.open span:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+
+.hamburger-menu.open span:nth-child(2) {
+  opacity: 0;
+}
+
+.hamburger-menu.open span:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+  .hamburger-menu {
+    display: none;
+  }
+
+  .sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 245px;
+  }
+
+  .main-content {
+    margin-left: 270px;
+  }
+}
+
 /* Animations */
 @keyframes slideDown {
   from {
@@ -292,117 +651,24 @@ tbody tr:hover {
   }
 }
 
-.pair-selection.closing {
-  animation: slideUp var(--transition-speed) ease-out forwards;
-}
-
-/* Mobile Styles */
-@media screen and (max-width: 768px) {
-  .app-container {
-    position: relative;
-    width: 100%;
-    flex-direction: column;
-  }
-
-  .hamburger-menu {
-    display: block;
-    position: fixed;
-    top: 15px;
-    right: 15px;
-    z-index: 1001;
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 10px;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .hamburger-menu span {
-    display: block;
-    width: 30px;
-    height: 3px;
-    background-color: var(--primary-color);
-    border-radius: 3px;
-    transition: all var(--transition-speed) ease-in-out;
-    position: absolute;
-    left: 5px;
-  }
-
-  .hamburger-menu span:nth-child(1) { top: 12px; }
-  .hamburger-menu span:nth-child(2) { top: 19px; }
-  .hamburger-menu span:nth-child(3) { top: 26px; }
-
-  .hamburger-menu.open span:nth-child(1) {
-    transform: translateY(7px) rotate(45deg);
-  }
-
-  .hamburger-menu.open span:nth-child(2) {
+@keyframes slideIn {
+  from {
     opacity: 0;
+    transform: translateX(-100%);
   }
-
-  .hamburger-menu.open span:nth-child(3) {
-    transform: translateY(-7px) rotate(-45deg);
-  }
-
-  .sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 100vh;
-    transform: translateY(-100%);
-    transition: transform var(--transition-speed) ease-in-out;
-    z-index: 1000;
-    background: var(--bg-darker);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    overflow-y: auto;
-    padding: 20px;
-  }
-
-  .sidebar.open {
-    transform: translateY(0);
-  }
-
-  .main-content {
-    margin-top: 60px;
-    width: 100%;
-    padding: 20px;
-  }
-
-  .pair-selection {
-    width: 100%;
-    animation: slideDown 0.5s ease-out;
-  }
-
-  .pair-selection.closing {
-    animation: slideUp 0.5s ease-out forwards;
-  }
-
-  .pair-checkbox {
-    animation: fadeIn 0.5s ease-out;
-  }
-
-  .reset-btn {
-    animation: fadeIn 0.5s ease-out 0.2s both;
+  to {
+    opacity: 1;
+    transform: translateX(0);
   }
 }
 
-/* Desktop Styles */
-@media screen and (min-width: 769px) {
-  .sidebar {
-    position: fixed;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 245px;
+@keyframes slideOut {
+  from {
+    opacity: 1;
+    transform: translateX(0);
   }
-
-  .main-content {
-    margin-left: 285px;
+  to {
+    opacity: 0;
+    transform: translateX(-100%);
   }
 }

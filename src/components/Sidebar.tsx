@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axiosInstance, { handleLogout } from '../services/auth';
-import "../styles.css";
+import "../App.css";
 import GoogleLoginButton from "../components/GoogleLoginButton";
 import { useGoogleLogin } from "@react-oauth/google";
 import Toast from './Toast';
@@ -153,7 +153,7 @@ const Sidebar: React.FC<SidebarProps> = ({ setActiveTab, activeTab }) => {
       setTimeout(() => {
         setShowDropdown(false);
         setIsClosing(false);
-      }, 500);
+      }, 300);
     } else {
       setShowDropdown(true);
     }
@@ -165,6 +165,13 @@ const Sidebar: React.FC<SidebarProps> = ({ setActiveTab, activeTab }) => {
       message: 'Đăng nhập thành công!',
       type: 'success'
     });
+    
+    // Lấy lại danh sách cặp tiền đã chọn từ database
+    const token = localStorage.getItem('token');
+    if (token) {
+      fetchSavedPairs(token);
+    }
+    
     setTimeout(() => {
       setToast({ ...toast, show: false });
     }, 3000);
