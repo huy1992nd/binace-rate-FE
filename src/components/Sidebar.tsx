@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import axiosInstance, { handleLogout } from '../services/auth';
 import "../App.css";
 import GoogleLoginButton from "../components/GoogleLoginButton";
-import { useGoogleLogin } from "@react-oauth/google";
 import Toast from './Toast';
 import axios from "axios";
 import { useDispatch, useSelector } from 'react-redux';
@@ -46,7 +45,8 @@ const Sidebar: React.FC<SidebarProps> = ({ setActiveTab, activeTab }) => {
   const fetchTopPairs = async () => {
     try {
       const response = await axiosInstance.get('/crypto/top-pairs');
-      setTopPairs(response.data);
+      console.log("response", response);
+      setTopPairs(response.data?.result || []);
     } catch (error) {
       console.error("Failed to fetch top pairs", error);
       handleLogout();

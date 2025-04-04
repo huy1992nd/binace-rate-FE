@@ -18,7 +18,7 @@ const GoogleLoginButton: React.FC<GoogleLoginButtonProps> = ({
   const fetchTopPairs = async () => {
     try {
       const response = await axiosInstance.get('/crypto/top-pairs');
-      return response.data;
+      return response.data.result;
     } catch (error) {
       console.error("Failed to fetch top pairs", error);
       handleLogout();

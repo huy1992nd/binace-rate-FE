@@ -280,13 +280,13 @@ tbody tr:hover {
 }
 
 .price-up {
-  color: #2ECC71;
-  font-weight: bold;
+  color: #00ff00;
+  animation: priceUp 0.5s ease-in-out;
 }
 
 .price-down {
-  color: var(--danger-color);
-  font-weight: bold;
+  color: #ff0000;
+  animation: priceDown 0.5s ease-in-out;
 }
 
 /* Manage Users Styles */
@@ -670,5 +670,23 @@ tbody tr:hover {
   to {
     opacity: 0;
     transform: translateX(-100%);
+  }
+}
+
+@keyframes priceUp {
+  0% {
+    background-color: rgba(0, 255, 0, 0.1);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+@keyframes priceDown {
+  0% {
+    background-color: rgba(255, 0, 0, 0.1);
+  }
+  100% {
+    background-color: transparent;
   }
 }

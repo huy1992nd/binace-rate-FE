@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import "../App.css";
 import { useSelector } from 'react-redux';
 import { RootState } from '../store/store';
 import { subscribeToRates } from "../services/socket";
+import axiosInstance from "../services/auth";
 
 interface Rate {
   symbol: string;
@@ -10,94 +11,141 @@ interface Rate {
   priceChange: 'up' | 'down' | null;
 }
 
+interface SortConfig {
+  key: keyof Rate;
+  direction: "asc" | "desc";
+}
+
 const BinanceRates: React.FC = () => {
+  // State management
   const [rates, setRates] = useState<Rate[]>([]);
-  const [sortConfig, setSortConfig] = useState<{
-    key: keyof Rate;
-    direction: "asc" | "desc";
-  }>({ key: "price", direction: "asc" });
+  const [sortConfig, setSortConfig] = useState<SortConfig>({ 
+    key: "price", 
+    direction: "desc" 
+  });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const isMounted = useRef(true);
   const previousPrices = useRef<{ [key: string]: number }>({});
 
+  // Redux state
   const selectedPairs = useSelector((state: RootState) => state.selectedPairs.pairs);
 
-  useEffect(() => {
-    const unsubscribe = subscribeToRates((data) => {
-      if (!isMounted.current) return;
-      setRates(prevRates => {
-        const newPrice = parseFloat(data.price);
-        const oldPrice = previousPrices.current[data.symbol];
-        const priceChange = oldPrice ? (newPrice > oldPrice ? 'up' : newPrice < oldPrice ? 'down' : null) : null;
-        
-        previousPrices.current[data.symbol] = newPrice;
+  // API call to fetch initial rates
+  const fetchInitialRates = useCallback(async () => {
+    if (selectedPairs.length === 0) {
+      setIsLoading(false);
+      return;
+    }
 
-        const existingRate = prevRates.find(rate => rate.symbol === data.symbol);
-        if (!existingRate) {
-          return [...prevRates, {
-            symbol: data.symbol,
+    try {
+      const symbols = selectedPairs.join(',');
+      const response = await axiosInstance.get(`/crypto/list-rate?symbols=${symbols}`);
+      const initialRates = response.data.result.map((rate: any) => {
+        const price = parseFloat(rate.price);
+        previousPrices.current[rate.symbol] = price;
+        return {
+          symbol: rate.symbol,
+          price: price.toFixed(2),
+          priceChange: null
+        };
+      });
+      setRates(initialRates);
+    } catch (error) {
+      console.error("Failed to fetch initial rates:", error);
+      setError("Failed to load initial rates");
+    } finally {
+      setIsLoading(false);
+    }
+  }, [selectedPairs]);
+
+  // Socket subscription handler
+  const handleRateUpdate = useCallback((data: any) => {
+    setRates(prevRates => {
+      const newPrice = parseFloat(data.price);
+      const oldPrice = previousPrices.current[data.symbol];
+      const priceChange = oldPrice 
+        ? (newPrice > oldPrice ? 'up' : newPrice < oldPrice ? 'down' : null)
+        : null;
+      
+      previousPrices.current[data.symbol] = newPrice;
+
+      const existingRate = prevRates.find(rate => rate.symbol.toLowerCase() === data.symbol.toLowerCase());
+      if (!existingRate) {
+        return [...prevRates, {
+          symbol: data.symbol,
+          price: newPrice.toFixed(2),
+          priceChange
+        }];
+      }
+
+      return prevRates.map(rate => {
+        if (rate.symbol.toLowerCase() === data.symbol.toLowerCase()) {
+          return {
+            ...rate,
             price: newPrice.toFixed(2),
             priceChange
-          }];
+          };
         }
-
-        return prevRates.map(rate => {
-          if (rate.symbol === data.symbol) {
-            return {
-              ...rate,
-              price: newPrice.toFixed(2),
-              priceChange
-            };
-          }
-          return rate;
-        });
+        return rate;
       });
-      setIsLoading(false);
     });
+  }, []);
+
+  // Effect for initial data fetch and socket subscription
+  useEffect(() => {
+    fetchInitialRates();
+
+    const unsubscribe = subscribeToRates(handleRateUpdate);
 
     return () => {
-      isMounted.current = false;
       unsubscribe();
     };
-  }, []); // Only subscribe once to get all pairs
+  }, [fetchInitialRates, handleRateUpdate]);
 
-  const handleSort = (key: keyof Rate) => {
-    setSortConfig((prevConfig) => ({
+  // Sorting handler
+  const handleSort = useCallback((key: keyof Rate) => {
+    setSortConfig(prevConfig => ({
       key,
-      direction:
-        prevConfig.key === key && prevConfig.direction === "asc" ? "desc" : "asc",
+      direction: prevConfig.key === key && prevConfig.direction === "asc" ? "desc" : "asc",
     }));
-  };
+  }, []);
 
-
-  const sortedRates = [...rates].sort((a, b) => {
-    if (sortConfig.key === 'price') {
+  // Memoized sorted and filtered rates
+  const sortedRates = useMemo(() => {
+    return [...rates].sort((a, b) => {
+      if (sortConfig.key === 'symbol') {
+        return sortConfig.direction === "asc" 
+          ? a.symbol.localeCompare(b.symbol)
+          : b.symbol.localeCompare(a.symbol);
+      }
       const aValue = parseFloat(a.price);
       const bValue = parseFloat(b.price);
       return sortConfig.direction === "asc" ? aValue - bValue : bValue - aValue;
-    }
-    return a.symbol.localeCompare(b.symbol);
-  });
+    });
+  }, [rates, sortConfig]);
 
-  // Filter rates based on selected pairs
-  const filteredRates = selectedPairs.length > 0 
-    ? sortedRates.filter((rate) => selectedPairs.includes(rate.symbol.toLowerCase()))
-    : sortedRates;
+  const filteredRates = useMemo(() => {
+    return selectedPairs.length > 0 
+      ? sortedRates.filter(rate => selectedPairs.includes(rate.symbol))
+      : sortedRates;
+  }, [sortedRates, selectedPairs]);
 
-  const getSortIcon = (key: keyof Rate) => {
+  // Sort icon helper
+  const getSortIcon = useCallback((key: keyof Rate) => {
     if (sortConfig.key !== key) return "↕️";
     return sortConfig.direction === "asc" ? "↑" : "↓";
-  };
+  }, [sortConfig]);
 
+  // Loading and error states
   if (isLoading) {
-    return <div className="loading">Waiting for rates...</div>;
+    return <div className="loading">Loading rates...</div>;
   }
 
   if (error) {
     return <div className="error">{error}</div>;
   }
 
+  // Main render
   return (
     <div className="binance-rates">
       <div className="table-container">
@@ -115,7 +163,7 @@ const BinanceRates: React.FC = () => {
           <tbody>
             {filteredRates.map((rate) => (
               <tr key={rate.symbol}>
-                <td>{rate.symbol}</td>
+                <td>{rate.symbol.toUpperCase()}</td>
                 <td className={rate.priceChange === 'up' ? 'price-up' : rate.priceChange === 'down' ? 'price-down' : ''}>
                   {rate.price}
                 </td>

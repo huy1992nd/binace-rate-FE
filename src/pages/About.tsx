@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useEffect, useState } from "react";
 import axiosInstance, { handleLogout } from "../services/auth";
 import styles from './style.module.css';
