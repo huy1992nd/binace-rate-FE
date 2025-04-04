@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axiosInstance from '../services/auth';
 import Toast from '../components/Toast';
-import '../styles/ManageUsers.css';
+import styles from './style.module.css';
 
 interface User {
   id: string;
@@ -79,47 +79,47 @@ const EditUserModal: React.FC<EditUserModalProps> = ({ user, onClose, onUpdate }
   if (!user) return null;
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-content">
+    <div className={styles['modal-overlay']}>
+      <div className={styles['modal-content']}>
         <h3>Edit User</h3>
         <form onSubmit={handleSubmit}>
-          <div className="modal-form-group">
+          <div className={styles['modal-form-group']}>
             <label>Name</label>
             <input
               type="text"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="modal-input"
+              className={styles['modal-input']}
             />
           </div>
-          <div className="modal-form-group">
+          <div className={styles['modal-form-group']}>
             <label>Email</label>
             <input
               type="email"
               value={formData.email}
               disabled
-              className="modal-input"
+              className={styles['modal-input']}
             />
           </div>
-          <div className="modal-form-group">
+          <div className={styles['modal-form-group']}>
             <label>Description</label>
             <textarea
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              className="modal-input"
+              className={styles['modal-input']}
             />
           </div>
-          <div className="modal-buttons">
+          <div className={styles['modal-buttons']}>
             <button
               type="button"
               onClick={onClose}
-              className="modal-button cancel"
+              className={`${styles['modal-button']} ${styles['cancel']}`}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="modal-button save"
+              className={`${styles['modal-button']} ${styles['save']}`}
             >
               Save Changes
             </button>
@@ -394,7 +394,7 @@ const ManageUsers: React.FC = () => {
   }
 
   return (
-    <div className="container">
+    <div className={styles.container}>
       {toast.show && (
         <Toast
           message={toast.message}
@@ -402,23 +402,23 @@ const ManageUsers: React.FC = () => {
           onClose={() => setToast({ ...toast, show: false })}
         />
       )}
-      <div className="user-profile">
-        <div className="profile-header">
+      <div className={styles.userProfile}>
+        <div className={styles.profileHeader}>
           <h2>👥 User Management</h2>
         </div>
         
-        <div className="profile-info">
-          <div className={`info-section ${isStatsExpanded ? 'expanded' : 'collapsed'}`} onClick={toggleStats}>
-            <div className="info-section-header">
+        <div className={styles.profileInfo}>
+          <div className={`${styles.infoSection} ${isStatsExpanded ? styles.expanded : styles.collapsed}`} onClick={toggleStats}>
+            <div className={styles.infoSectionHeader}>
               <h3>
                 <span>📊</span>
                 User Statistics
               </h3>
-              <span className={`toggle-icon ${isStatsExpanded ? 'expanded' : ''}`}>
+              <span className={`${styles.toggleIcon} ${isStatsExpanded ? styles.expanded : ''}`}>
                 {isStatsExpanded ? '▼' : '▶'}
               </span>
             </div>
-            <div className="info-section-content">
+            <div className={styles.infoSectionContent}>
               <p>
                 <span>👥</span>
                 Total Users: {total}
@@ -434,8 +434,8 @@ const ManageUsers: React.FC = () => {
             </div>
           </div>
 
-          <div className="info-section">
-            <div className="search-filters">
+          <div className={styles.infoSection}>
+            <div className={styles.searchFilters}>
               <input
                 type="text"
                 name="name"
@@ -460,8 +460,8 @@ const ManageUsers: React.FC = () => {
               </select>
             </div>
 
-            <div className="users-table-container">
-              <table className="users-table">
+            <div className={styles.usersTableContainer}>
+              <table className={styles.usersTable}>
                 <thead>
                   <tr>
                     <th className={tableColumnStyles.user}>User</th>
@@ -476,17 +476,17 @@ const ManageUsers: React.FC = () => {
                   {users.map(user => (
                     <tr key={user.id}>
                       <td>
-                        <div className="user-info">
+                        <div className={styles.userInfo}>
                           <img 
                             src={user.picture} 
                             alt={user.name} 
-                            className="user-avatar"
+                            className={styles.userAvatar}
                           />
                           {user.name}
                         </div>
                       </td>
                       <td>
-                        <div className="email-cell">
+                        <div className={styles.emailCell}>
                           <span title={user.email}>{user.email}</span>
                         </div>
                       </td>
@@ -494,7 +494,7 @@ const ManageUsers: React.FC = () => {
                         <select
                           value={user.role}
                           onChange={(e) => handleUpdateRole(user.id, e.target.value)}
-                          className="role-select"
+                          className={styles.roleSelect}
                           disabled={user.id === currentUser?.id}
                         >
                           <option value="user">User</option>
@@ -502,11 +502,11 @@ const ManageUsers: React.FC = () => {
                         </select>
                       </td>
                       <td>
-                        <div className="pairs-container">
+                        <div className={styles.pairsContainer}>
                           {user.pairs?.map(pair => (
                             <span 
                               key={pair}
-                              className="pair-tag"
+                              className={styles.pairTag}
                             >
                               {pair.toUpperCase()}
                             </span>
@@ -521,17 +521,17 @@ const ManageUsers: React.FC = () => {
                         }) : 'Never'}
                       </td>
                       <td>
-                        <div className="action-buttons">
+                        <div className={styles.actionButtons}>
                           <button
                             onClick={() => handleEditUser(user)}
-                            className="action-button edit-button"
+                            className={styles.actionButton + ' ' + styles.editButton}
                           >
                             Edit
                           </button>
                           <button
                             onClick={() => handleDeleteUser(user.id)}
                             disabled={user.id === currentUser?.id}
-                            className="action-button delete-button"
+                            className={styles.actionButton + ' ' + styles.deleteButton}
                           >
                             Delete
                           </button>
@@ -543,21 +543,21 @@ const ManageUsers: React.FC = () => {
               </table>
             </div>
 
-            <div className="pagination">
+            <div className={styles.pagination}>
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 1}
-                className="pagination-button"
+                className={styles.paginationButton}
               >
                 Previous
               </button>
-              <span className="pagination-info">
+              <span className={styles.paginationInfo}>
                 Page {currentPage} of {Math.ceil(total / ITEMS_PER_PAGE)}
               </span>
               <button
                 onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage >= Math.ceil(total / ITEMS_PER_PAGE)}
-                className="pagination-button"
+                className={styles.paginationButton}
               >
                 Next
               </button>

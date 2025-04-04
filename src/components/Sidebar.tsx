@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from "react";
 import axiosInstance, { handleLogout } from '../services/auth';
-import "../styles.css";
+import "../App.css";
 import GoogleLoginButton from "../components/GoogleLoginButton";
 import { useGoogleLogin } from "@react-oauth/google";
 import Toast from './Toast';
 import axios from "axios";
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../store/store';
+import { setSelectedPairs, addPair, removePair, clearPairs } from '../store/selectedPairsSlice';
 
 interface SidebarProps {
   setActiveTab: (tab: string) => void;
@@ -27,7 +30,6 @@ interface ToastState {
 const Sidebar: React.FC<SidebarProps> = ({ setActiveTab, activeTab }) => {
   const [user, setUser] = useState<User | null>(null);
   const [topPairs, setTopPairs] = useState<string[]>([]);
-  const [selectedPairs, setSelectedPairs] = useState<string[]>([]);
   const [showDropdown, setShowDropdown] = useState<boolean>(false);
   const [isClosing, setIsClosing] = useState<boolean>(false);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -37,6 +39,9 @@ const Sidebar: React.FC<SidebarProps> = ({ setActiveTab, activeTab }) => {
     message: '',
     type: 'success'
   });
+
+  const dispatch = useDispatch();
+  const selectedPairs = useSelector((state: RootState) => state.selectedPairs.pairs);
 
   const fetchTopPairs = async () => {
     try {
@@ -52,9 +57,7 @@ const Sidebar: React.FC<SidebarProps> = ({ setActiveTab, activeTab }) => {
     try {
       const response = await axiosInstance.get('/crypto/get-pairs');
       const savedPairs = response.data;
-      setSelectedPairs(savedPairs);
-      console.log('in fetchSavedPairs', savedPairs);
-
+      dispatch(setSelectedPairs(savedPairs));
       localStorage.setItem("selectedPairs", JSON.stringify(savedPairs));
     } catch (error) {
       console.error("Failed to fetch saved pairs", error);
@@ -90,20 +93,7 @@ const Sidebar: React.FC<SidebarProps> = ({ setActiveTab, activeTab }) => {
     };
 
     fetchUser();
-  }, []);
-
-  // Handle localStorage changes for selected pairs
-  useEffect(() => {
-    const handleStorageChange = () => {
-      const updatedPairs = localStorage.getItem("selectedPairs");
-      if (updatedPairs) {
-        setSelectedPairs(JSON.parse(updatedPairs));
-      }
-    };
-
-    window.addEventListener("storage", handleStorageChange);
-    return () => window.removeEventListener("storage", handleStorageChange);
-  }, []);
+  }, [dispatch]);
 
   // Save pairs to backend when selectedPairs changes
   useEffect(() => {
@@ -117,6 +107,7 @@ const Sidebar: React.FC<SidebarProps> = ({ setActiveTab, activeTab }) => {
     localStorage.removeItem("user");
     localStorage.removeItem("selectedPairs");
     localStorage.removeItem("activeTab");
+    dispatch(clearPairs());
     window.location.reload();
   };
 
@@ -138,20 +129,20 @@ const Sidebar: React.FC<SidebarProps> = ({ setActiveTab, activeTab }) => {
     const value = event.target.value;
     const isChecked = event.target.checked;
   
-    const updatedPairs = isChecked
-      ? [...selectedPairs, value]
-      : selectedPairs.filter((pair) => pair !== value);
+    if (isChecked) {
+      dispatch(addPair(value));
+    } else {
+      dispatch(removePair(value));
+    }
   
-    console.log("handlePairSelection:", updatedPairs);
-    setSelectedPairs(updatedPairs);
-    localStorage.setItem("selectedPairs", JSON.stringify(updatedPairs));
+    localStorage.setItem("selectedPairs", JSON.stringify(selectedPairs));
     window.dispatchEvent(new Event("storage"));
   
     setTimeout(() => setIsUpdating(false), 200);
   };
 
   const handleResetPairs = () => {
-    setSelectedPairs([]);
+    dispatch(clearPairs());
     localStorage.removeItem("selectedPairs");
     window.dispatchEvent(new Event("storage"));
   };
@@ -162,7 +153,7 @@ const Sidebar: React.FC<SidebarProps> = ({ setActiveTab, activeTab }) => {
       setTimeout(() => {
         setShowDropdown(false);
         setIsClosing(false);
-      }, 500);
+      }, 300);
     } else {
       setShowDropdown(true);
     }
@@ -174,7 +165,13 @@ const Sidebar: React.FC<SidebarProps> = ({ setActiveTab, activeTab }) => {
       message: 'Đăng nhập thành công!',
       type: 'success'
     });
-    // Hide toast after 3 seconds
+    
+    // Lấy lại danh sách cặp tiền đã chọn từ database
+    const token = localStorage.getItem('token');
+    if (token) {
+      fetchSavedPairs(token);
+    }
+    
     setTimeout(() => {
       setToast({ ...toast, show: false });
     }, 3000);
@@ -186,7 +183,6 @@ const Sidebar: React.FC<SidebarProps> = ({ setActiveTab, activeTab }) => {
       message: 'Đăng nhập thất bại. Vui lòng thử lại!',
       type: 'error'
     });
-    // Hide toast after 3 seconds
     setTimeout(() => {
       setToast({ ...toast, show: false });
     }, 3000);

@@ -1,36 +1,42 @@
 import React, { useState, useEffect } from "react";
-import { GoogleOAuthProvider } from "@react-oauth/google"; // ✅ Import GoogleOAuthProvider
+import { Provider } from 'react-redux';
+import { GoogleOAuthProvider } from "@react-oauth/google";
+import { store } from './store/store';
 import Sidebar from "./components/Sidebar";
-import Home from "./pages/Home";
-import Info from "./pages/Info";
+import BinanceRates from "./components/BinanceRates";
+import Info from "./pages/About";
 import InfoUser from "./pages/InfoUser";
 import ManageUsers from "./pages/ManageUsers";
 import "./App.css";
 
 const CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID as string;
-// import "./styles.css";
 
 const App: React.FC = () => {
-  const [activeTab, setActiveTab] = useState(() => {
-    // Lấy active tab từ localStorage khi khởi tạo
-    const savedTab = localStorage.getItem("activeTab");
-    return savedTab || "prices";
-  });
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<string>("prices");
+  const [isLoading, setIsLoading] = useState(true);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  // Lưu active tab vào localStorage mỗi khi nó thay đổi
   useEffect(() => {
-    localStorage.setItem("activeTab", activeTab);
-  }, [activeTab]);
+    const savedTab = localStorage.getItem("activeTab");
+    if (savedTab) {
+      setActiveTab(savedTab);
+    }
+    setIsLoading(false);
+  }, []);
 
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    localStorage.setItem("activeTab", tab);
+  };
+
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
   };
 
   const renderContent = () => {
     switch (activeTab) {
       case "prices":
-        return <Home />;
+        return <BinanceRates />;
       case "info":
         return <Info />;
       case "user":
@@ -38,23 +44,32 @@ const App: React.FC = () => {
       case "manage-users":
         return <ManageUsers />;
       default:
-        return <Home />;
+        return <BinanceRates />;
     }
   };
 
+  if (isLoading) {
+    return <div className="loading">Loading...</div>;
+  }
+
   return (
     <GoogleOAuthProvider clientId={CLIENT_ID}>
-      <div className="app-container">
-        <button className={`hamburger-menu ${isSidebarOpen ? 'open' : ''}`} onClick={toggleSidebar}>
-          <span></span>
-          <span></span>
-          <span></span>
-        </button>
-        <div className={`sidebar ${isSidebarOpen ? "open" : ""}`}>
-          <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+      <Provider store={store}>
+        <div className="app-container">
+          <button 
+            className={`hamburger-menu ${isMenuOpen ? 'open' : ''}`}
+            onClick={toggleMenu}
+          >
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+          <div className={`sidebar ${isMenuOpen ? 'open' : ''}`}>
+            <Sidebar activeTab={activeTab} setActiveTab={handleTabChange} />
+          </div>
+          <div className="main-content">{renderContent()}</div>
         </div>
-        <div className="main-content">{renderContent()}</div>
-      </div>
+      </Provider>
     </GoogleOAuthProvider>
   );
 };
