@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Provider } from 'react-redux';
 import { GoogleOAuthProvider } from "@react-oauth/google";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { store } from './store/store';
 import Sidebar from "./components/Sidebar";
 import BinanceRates from "./components/BinanceRates";
@@ -12,40 +13,15 @@ import "./App.css";
 const CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID as string;
 
 const App: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<string>("prices");
-  const [isLoading, setIsLoading] = useState(true);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const savedTab = localStorage.getItem("activeTab");
-    if (savedTab) {
-      setActiveTab(savedTab);
-    }
     setIsLoading(false);
   }, []);
 
-  const handleTabChange = (tab: string) => {
-    setActiveTab(tab);
-    localStorage.setItem("activeTab", tab);
-  };
-
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
-  };
-
-  const renderContent = () => {
-    switch (activeTab) {
-      case "prices":
-        return <BinanceRates />;
-      case "info":
-        return <Info />;
-      case "user":
-        return <InfoUser />;
-      case "manage-users":
-        return <ManageUsers />;
-      default:
-        return <BinanceRates />;
-    }
   };
 
   if (isLoading) {
@@ -55,20 +31,30 @@ const App: React.FC = () => {
   return (
     <GoogleOAuthProvider clientId={CLIENT_ID}>
       <Provider store={store}>
-        <div className="app-container">
-          <button 
-            className={`hamburger-menu ${isMenuOpen ? 'open' : ''}`}
-            onClick={toggleMenu}
-          >
-            <span></span>
-            <span></span>
-            <span></span>
-          </button>
-          <div className={`sidebar ${isMenuOpen ? 'open' : ''}`}>
-            <Sidebar activeTab={activeTab} setActiveTab={handleTabChange} />
+        <Router>
+          <div className="app-container">
+            <button 
+              className={`hamburger-menu ${isMenuOpen ? 'open' : ''}`}
+              onClick={toggleMenu}
+            >
+              <span></span>
+              <span></span>
+              <span></span>
+            </button>
+            <div className={`sidebar ${isMenuOpen ? 'open' : ''}`}>
+              <Sidebar />
+            </div>
+            <div className="main-content">
+              <Routes>
+                <Route path="/prices" element={<BinanceRates />} />
+                <Route path="/about" element={<Info />} />
+                <Route path="/user" element={<InfoUser />} />
+                <Route path="/manage-users" element={<ManageUsers />} />
+                <Route path="/" element={<Navigate to="/prices" replace />} />
+              </Routes>
+            </div>
           </div>
-          <div className="main-content">{renderContent()}</div>
-        </div>
+        </Router>
       </Provider>
     </GoogleOAuthProvider>
   );

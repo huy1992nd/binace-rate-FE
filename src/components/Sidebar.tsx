@@ -7,11 +7,9 @@ import axios from "axios";
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../store/store';
 import { setSelectedPairs, addPair, removePair, clearPairs } from '../store/selectedPairsSlice';
-
-interface SidebarProps {
-  setActiveTab: (tab: string) => void;
-  activeTab: string;
-}
+import { useLocation, useNavigate } from 'react-router-dom';
+import { Routes, PUBLIC_ROUTES } from '../utils/routes';
+import { NAVIGATION_MENU, NavigationItems } from '../utils/navigation';
 
 interface User {
   name: string;
@@ -26,7 +24,7 @@ interface ToastState {
   type: 'success' | 'error';
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ setActiveTab, activeTab }) => {
+const Sidebar: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
   const [topPairs, setTopPairs] = useState<string[]>([]);
   const [showDropdown, setShowDropdown] = useState<boolean>(false);
@@ -41,6 +39,8 @@ const Sidebar: React.FC<SidebarProps> = ({ setActiveTab, activeTab }) => {
 
   const dispatch = useDispatch();
   const selectedPairs = useSelector((state: RootState) => state.selectedPairs.pairs);
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const fetchTopPairs = async () => {
     try {
@@ -64,6 +64,16 @@ const Sidebar: React.FC<SidebarProps> = ({ setActiveTab, activeTab }) => {
       handleLogout();
     }
   };
+
+  // Check authentication and redirect if needed
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const currentPath = location.pathname;
+    
+    if (!token && !PUBLIC_ROUTES.includes(currentPath as Routes)) {
+      navigate(Routes.PRICES);
+    }
+  }, [location.pathname, navigate]);
 
   // Handle user data and initial pairs fetch
   useEffect(() => {
@@ -108,7 +118,14 @@ const Sidebar: React.FC<SidebarProps> = ({ setActiveTab, activeTab }) => {
     localStorage.removeItem("selectedPairs");
     localStorage.removeItem("activeTab");
     dispatch(clearPairs());
-    window.location.reload();
+    
+    // Check current URL and redirect if needed
+    const currentPath = location.pathname;
+    if (!PUBLIC_ROUTES.includes(currentPath as Routes)) {
+      navigate(Routes.PRICES);
+    } else {
+      window.location.reload();
+    }
   };
 
   const savePairsToBackend = async (updatedPairs: string[]) => {
@@ -188,6 +205,23 @@ const Sidebar: React.FC<SidebarProps> = ({ setActiveTab, activeTab }) => {
     }, 3000);
   };
 
+  const renderNavigationItems = () => {
+    return NAVIGATION_MENU.map((item) => {
+      if (item.isProtected && !user) return null;
+      if (item.id === NavigationItems.MANAGE_USERS && user?.role !== 'admin') return null;
+
+      return (
+        <button
+          key={item.id}
+          className={location.pathname === item.route ? "active" : ""}
+          onClick={() => navigate(item.route)}
+        >
+          {item.icon} {item.label}
+        </button>
+      );
+    });
+  };
+
   if (isLoading) {
     return <div className="sidebar-loading">Loading...</div>;
   }
@@ -232,42 +266,19 @@ const Sidebar: React.FC<SidebarProps> = ({ setActiveTab, activeTab }) => {
                 </div>
               )}
             </div>
-            <button
-              className={activeTab === "user" ? "active" : ""}
-              onClick={() => setActiveTab("user")}
-            >
-              👤 User Info
-            </button>
-            {user.role === "admin" && (
-              <button
-                className={`menu-item ${activeTab === "manage-users" ? "active" : ""}`}
-                onClick={() => setActiveTab("manage-users")}
-              >
-                <span className="icon">👥</span>
-                <span className="text">Manage Users</span>
-              </button>
-            )}
+            {renderNavigationItems()}
           </>
         ) : (
-          <GoogleLoginButton 
-            setUser={setUser} 
-            setTopPairs={setTopPairs}
-            onLoginSuccess={handleLoginSuccess}
-            onLoginError={handleLoginError}
-          />
+          <>
+            <GoogleLoginButton 
+              setUser={setUser} 
+              setTopPairs={setTopPairs}
+              onLoginSuccess={handleLoginSuccess}
+              onLoginError={handleLoginError}
+            />
+            {renderNavigationItems()}
+          </>
         )}
-        <button
-          className={activeTab === "prices" ? "active" : ""}
-          onClick={() => setActiveTab("prices")}
-        >
-          🔥 Live Prices
-        </button>
-        <button
-          className={activeTab === "info" ? "active" : ""}
-          onClick={() => setActiveTab("info")}
-        >
-          ℹ️ Introduction
-        </button>
       </div>
     </div>
   );

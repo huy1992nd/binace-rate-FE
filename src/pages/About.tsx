@@ -26,41 +26,8 @@ const Info: React.FC = () => {
   const selectedPairs = useSelector((state: RootState) => state.selectedPairs.pairs);
 
   useEffect(() => {
-    const fetchUserInfo = async () => {
-      try {
-        // Fetch user details from API
-        const response = await axiosInstance.get('/user/me');
-        const userData = response.data.result; // Access the result object
 
-        setUserInfo({
-          name: userData.name,
-          picture: userData.picture,
-          email: userData.email,
-          selectedPairs: selectedPairs, // Sử dụng selectedPairs từ Redux
-          createdAt: new Date(userData.createdAt).toLocaleDateString(),
-          lastLogin: userData.lastLogin ? new Date(userData.lastLogin).toLocaleDateString() : 'Never',
-          totalPairs: selectedPairs.length, // Cập nhật số lượng cặp tiền tệ
-          role: userData.role,
-          description: userData.description
-        });
-      } catch (error) {
-        console.error("Failed to fetch user info", error);
-        setError("Failed to load user information. Please try again later.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUserInfo();
   }, [selectedPairs]); // Thêm selectedPairs vào dependencies để cập nhật khi có thay đổi
-
-  if (loading) {
-    return (
-      <div className={styles.container}>
-        <div className={styles.loading}>Loading...</div>
-      </div>
-    );
-  }
 
   if (error) {
     return (
@@ -76,7 +43,7 @@ const Info: React.FC = () => {
         <div className={styles.profileHeader}>
             <>
               <img 
-                src="https://cryptologos.cc/logos/binance-coin-bnb-logo.png" 
+                src="binance-svgrepo-com.svg" 
                 alt="Binance Logo" 
                 className={styles.profileAvatar}
                 style={{ width: '150px', height: '150px', objectFit: 'contain' }}
