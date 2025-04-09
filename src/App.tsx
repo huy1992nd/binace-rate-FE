@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { Provider } from 'react-redux';
 import { GoogleOAuthProvider } from "@react-oauth/google";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes as RouterRoutes, Route, Navigate } from "react-router-dom";
 import { store } from './store/store';
 import Sidebar from "./components/Sidebar";
 import BinanceRates from "./components/BinanceRates";
 import Info from "./pages/About";
 import InfoUser from "./pages/InfoUser";
 import ManageUsers from "./pages/ManageUsers";
+import { Routes } from './utils/routes';
 import "./App.css";
 
 const CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID as string;
@@ -45,13 +46,13 @@ const App: React.FC = () => {
               <Sidebar />
             </div>
             <div className="main-content">
-              <Routes>
-                <Route path="/prices" element={<BinanceRates />} />
-                <Route path="/about" element={<Info />} />
-                <Route path="/user" element={<InfoUser />} />
-                <Route path="/manage-users" element={<ManageUsers />} />
-                <Route path="/" element={<Navigate to="/prices" replace />} />
-              </Routes>
+              <RouterRoutes>
+                <Route path={Routes.PRICES} element={<BinanceRates />} />
+                <Route path={Routes.ABOUT} element={<Info />} />
+                <Route path={Routes.USER} element={<InfoUser />} />
+                <Route path={Routes.MANAGE_USERS} element={<ManageUsers />} />
+                <Route path="/" element={<Navigate to={Routes.PRICES} replace />} />
+              </RouterRoutes>
             </div>
           </div>
         </Router>
